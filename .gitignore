@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Model checkpoints (large binaries — store separately if needed)
+*.pt
+*.pth
+
+# Extracted code sequences (large numpy arrays)
+*.npy
+
+# Generated plots and experiment outputs
+*.png
+SweepWeek1Exp1/
+ResetWeek2Exp1/
+ResetWeek2Exp12/
+ResetWeek2Exp2/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
