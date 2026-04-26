@@ -1,3 +1,4 @@
+import argparse
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -5,6 +6,16 @@ from torch.utils.data import DataLoader
 import config
 from data.load_data import PTBXLDataset
 from models.vqvae import VQVAE
+
+# ── Args ───────────────────────────────────────────────────────────────────────
+parser = argparse.ArgumentParser()
+parser.add_argument("--resume",        action="store_true",
+                    help="Load vqvae_best.pt and continue training")
+parser.add_argument("--start-epoch",   type=int,   default=1,
+                    help="Epoch to start from (use with --resume)")
+parser.add_argument("--best-val-loss", type=float, default=float("inf"),
+                    help="Best val loss so far (use with --resume)")
+args = parser.parse_args()
 
 # ── Data ───────────────────────────────────────────────────────────────────────
 train_dataset = PTBXLDataset(folds=list(range(1, 10)), n_records=config.N_RECORDS)
@@ -22,13 +33,17 @@ model  = VQVAE(input_dim=config.INPUT_DIM, latent_dim=config.LATENT_DIM,
                num_embeddings=config.NUM_EMBEDDINGS, decay=config.EMA_DECAY,
                buffer_size=config.BUFFER_SIZE).to(device)
 
+if args.resume:
+    model.load_state_dict(torch.load("vqvae_best.pt", map_location=device))
+    print(f"Resumed from vqvae_best.pt  |  start_epoch={args.start_epoch}  |  best_val={args.best_val_loss:.6f}")
+
 optimizer     = torch.optim.Adam(model.parameters(), lr=config.LR)
 recon_loss_fn = nn.MSELoss()
 
-best_val_loss = float("inf")
+best_val_loss = args.best_val_loss
 
 # ── Training loop ──────────────────────────────────────────────────────────────
-for epoch in range(1, config.EPOCHS + 1):
+for epoch in range(args.start_epoch, config.EPOCHS + 1):
 
     # ── Train ──────────────────────────────────────────────────────────────────
     model.train()
@@ -76,5 +91,6 @@ for epoch in range(1, config.EPOCHS + 1):
         print("  * saved", end="")
 
     print()
+    # if need to resume: python main.py --resume --start-epoch 6 --best-val-loss 0.045544   #from the last saved checkpoint
 
 print(f"\nBest val recon loss: {best_val_loss:.6f}  ->  vqvae_best.pt")

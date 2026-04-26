@@ -22,10 +22,10 @@ SEQ_LEN         = INPUT_DIM // 8   # 125 — latent time steps after 8x downsamp
 EMA_DECAY        = 0.95   # EMA decay γ for codebook updates
 COMMITMENT_COST  = 0.25   # β — weight on commitment loss
 BUFFER_SIZE      = 2048   # circular buffer size for K-Means Centroid Reset (Strategy 2)
-BATCH_SIZE       = 32
-EPOCHS           = 50
+BATCH_SIZE       = 16
+EPOCHS           = 10
 LR               = 1e-3
-N_RECORDS        = 5000   # cap per split for quick runs; set to None for full ~21k dataset
+N_RECORDS        = None   # cap per split for quick runs; set to None for full ~21k dataset
 
 # ── Prior architecture ─────────────────────────────────────────────────────────
 D_MODEL   = 128

@@ -175,5 +175,5 @@ print(f"Dead codes   : {usage['dead_codes']}  ({usage['dead_pct']:.1f}%)")
 print()
 
 # Plots
-save_recon_plot(originals, recons, mse_per_signal, K=K, trained=trained, path="recon.png")
-save_codebook_histogram(usage, K=K, trained=trained, path="codebook.png")
+save_recon_plot(originals, recons, mse_per_signal, K=K, trained=trained, path="recon_all.png")
+save_codebook_histogram(usage, K=K, trained=trained, path="codebook_all.png")
