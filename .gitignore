@@ -26,6 +26,8 @@ SweepWeek1Exp1/
 ResetWeek2Exp1/
 ResetWeek2Exp12/
 ResetWeek2Exp2/
+DataScalingExp4/
+EMADecayExp3/
 
 # Jupyter
 .ipynb_checkpoints/
