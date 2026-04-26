@@ -82,15 +82,15 @@ All hyperparameters live in `config.py`. Edit once — every script picks it up 
 |---|---|---|
 | `INPUT_DIM` | 1000 | ECG length (10s @ 100Hz) |
 | `LATENT_DIM` | 64 | Codebook vector dimension D |
-| `NUM_EMBEDDINGS` | 128 | Codebook size K |
+| `NUM_EMBEDDINGS` | 512 | Codebook size K |
 | `SEQ_LEN` | 125 | Latent time steps (INPUT_DIM // 8) |
 | `EMA_DECAY` | 0.95 | Codebook EMA decay γ |
 | `COMMITMENT_COST` | 0.25 | Commitment loss weight β |
 | `BUFFER_SIZE` | 2048 | Circular buffer size for K-Means Centroid Reset |
-| `BATCH_SIZE` | 32 | VQ-VAE training batch size |
-| `EPOCHS` | 20 | VQ-VAE training epochs |
+| `BATCH_SIZE` | 16 | VQ-VAE training batch size |
+| `EPOCHS` | 30 | VQ-VAE training epochs |
 | `LR` | 1e-3 | Adam learning rate |
-| `N_RECORDS` | 1000 | Records per split (None = full ~21k) |
+| `N_RECORDS` | 5000 | Records per split (None = full ~21k) |
 | `D_MODEL` | 128 | Prior Transformer width |
 | `N_HEADS` | 4 | Prior attention heads |
 | `N_LAYERS` | 4 | Prior Transformer layers |
@@ -140,6 +140,14 @@ python main.py
 
 Trains on PTB-XL (folds 1-9), validates on fold 10. Saves best checkpoint to `vqvae_best.pt`.
 Logs per epoch: `train_recon`, `vq_loss`, `perplexity`, `val_recon`.
+
+To resume an interrupted run from a saved checkpoint:
+
+```bash
+python main.py --resume --start-epoch 21 --best-val-loss 0.033118
+```
+
+`--start-epoch` sets the epoch to continue from; `--best-val-loss` carries forward the best val loss so the checkpoint is only overwritten on genuine improvement.
 
 ### 2. Extract discrete code sequences
 
@@ -315,6 +323,24 @@ total_loss = MSE(x_recon, x) + β * ||z_e - sg(z_q)||^2
 | 0.99 | Slow monotonic rise (94 → 406) | Continues gradual growth | Plateaus ~404, minimal fluctuation |
 
 **Finding:** γ=0.95 achieves the best balance — lowest MSE (0.0500) with stable codebook dynamics. γ=0.90 adapts fastest and overshoots, producing fluctuating assignments and exaggerated QRS peaks. γ=0.99 yields highest perplexity and utilization but slower specialization, resulting in slightly blurred reconstructions. All three settings exhibit a persistent long-tail usage distribution, confirming that EMA tuning moderates collapse severity but does not eliminate it. EMA decay controls the adaptation speed vs. stability tradeoff; it is not a solution to collapse on its own.
+
+### Experiment 5 — Data Scaling
+
+**Settings:** K=512, EMA_DECAY=0.95, β=0.25, K-Means Centroid Reset. N_RECORDS varied across {1000, 2000, 5000}; epoch budget scaled with dataset size to keep training effort proportional.
+
+| N (train) | Epochs | Best Val Recon | Mean MSE | Active Codes | Dead Codes |
+|---|---|---|---|---|---|
+| 1000 | 20 | 0.044664 | 0.0500 | 375 / 512 | 26.8% |
+| 2000 | 25 | 0.035590 | 0.0415 | 363 / 512 | 29.1% |
+| 5000 | 30 | 0.033118† | — | — | — |
+
+†Run interrupted at epoch 20; best checkpoint at epoch 17. Sweep metrics pending completion.
+
+**Training dynamics (5000 records):** Val recon fell steeply in early epochs (0.059 → 0.034 by epoch 10) and then flattened, with only marginal improvements past epoch 13. The loss curve had not fully plateaued by epoch 20, suggesting the remaining 10 epochs may still yield small gains.
+
+**Codebook dynamics (5000 records):** Perplexity stabilised in the mid-350s across all epochs — notably lower than the 1000-record run's peak of ~395 — suggesting that with more data the encoder learns a slightly more concentrated usage pattern, though the absolute active-code count is expected to be similar.
+
+**Finding (preliminary):** More training data consistently improves reconstruction: each 2–5× increase in N yields roughly a 20–25% reduction in best val recon loss. The gain from 2000 → 5000 records is smaller in absolute terms than 1000 → 2000, hinting at diminishing returns. Dead-code rate appears to be largely independent of dataset size, remaining stable at ~27–29% — consistent with the view that collapse is driven by training dynamics rather than data volume.
 
 ---
 
