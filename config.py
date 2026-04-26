@@ -5,7 +5,7 @@ import os
 # ── Dataset ────────────────────────────────────────────────────────────────────
 PTB_XL_PATH = os.environ.get(
     "PTB_XL_PATH",
-    "C:/Users/vaish/Downloads/ptb-xl-a-large-publicly-available-electrocardiography-dataset-1.0.3/"
+    "path"
 )
 
 # ── Signal ─────────────────────────────────────────────────────────────────────
