@@ -324,23 +324,45 @@ total_loss = MSE(x_recon, x) + β * ||z_e - sg(z_q)||^2
 
 **Finding:** γ=0.95 achieves the best balance — lowest MSE (0.0500) with stable codebook dynamics. γ=0.90 adapts fastest and overshoots, producing fluctuating assignments and exaggerated QRS peaks. γ=0.99 yields highest perplexity and utilization but slower specialization, resulting in slightly blurred reconstructions. All three settings exhibit a persistent long-tail usage distribution, confirming that EMA tuning moderates collapse severity but does not eliminate it. EMA decay controls the adaptation speed vs. stability tradeoff; it is not a solution to collapse on its own.
 
-### Experiment 5 — Data Scaling
+### Experiment 5 — Data Scaling (1K → 2K → 5K → 10K)
 
-**Settings:** K=512, EMA_DECAY=0.95, β=0.25, K-Means Centroid Reset. N_RECORDS varied across {1000, 2000, 5000}; epoch budget scaled with dataset size to keep training effort proportional.
+**Objective:** Determine whether the codebook collapse observed in Experiment 1 was caused by insufficient training data rather than architectural or hyperparameter limitations.
 
-| N (train) | Epochs | Best Val Recon | Mean MSE | Active Codes | Dead Codes |
-|---|---|---|---|---|---|
-| 1000 | 20 | 0.044664 | 0.0500 | 375 / 512 | 26.8% |
-| 2000 | 25 | 0.035590 | 0.0415 | 363 / 512 | 29.1% |
-| 5000 | 30 | 0.033118† | — | — | — |
+**Hypothesis:** Training on progressively larger subsets of PTB-XL will naturally increase active code count and improve reconstruction, as the model encounters more diverse signal patterns — even without architectural changes.
 
-†Run interrupted at epoch 20; best checkpoint at epoch 17. Sweep metrics pending completion.
+**Settings:** K=512, EMA_DECAY=0.95, β=0.25, K-Means Centroid Reset, Adam (LR=1e-3), batch size=32, lead I, z-score normalised. Epoch budget scaled with dataset size.
 
-**Training dynamics (5000 records):** Val recon fell steeply in early epochs (0.059 → 0.034 by epoch 10) and then flattened, with only marginal improvements past epoch 13. The loss curve had not fully plateaued by epoch 20, suggesting the remaining 10 epochs may still yield small gains.
+#### 5.1 Summary
 
-**Codebook dynamics (5000 records):** Perplexity stabilised in the mid-350s across all epochs — notably lower than the 1000-record run's peak of ~395 — suggesting that with more data the encoder learns a slightly more concentrated usage pattern, though the absolute active-code count is expected to be similar.
+| N (train) | Epochs | Best Val Recon | Mean MSE | Perplexity | Active Codes | Dead Codes | Stability |
+|---|---|---|---|---|---|---|---|
+| 1K | 20 | 0.0447 | 0.0500 | 355.0 | 375 / 512 | 26.8% | Stable |
+| 2K | 25 | 0.0356 | 0.0415 | 291.0 | 363 / 512 | 29.1% | Very stable |
+| 5K | 30 | 0.0319 | 0.0376 | 334.0 | 401 / 512 | 21.7% | Stable, mild late noise |
+| 10K | 30 | 0.0309 | 0.0354 | 324.5 | 398 / 512 | 22.3% | Slightly noisy |
 
-**Finding (preliminary):** More training data consistently improves reconstruction: each 2–5× increase in N yields roughly a 20–25% reduction in best val recon loss. The gain from 2000 → 5000 records is smaller in absolute terms than 1000 → 2000, hinting at diminishing returns. Dead-code rate appears to be largely independent of dataset size, remaining stable at ~27–29% — consistent with the view that collapse is driven by training dynamics rather than data volume.
+#### 5.2 Training Dynamics
+
+| N (train) | Convergence Epoch | Final Norm. Perplexity | Dead Codes | Stability |
+|---|---|---|---|---|
+| 1K | ~17–20 | ~0.69 | 26.8% | Stable |
+| 2K | ~20–25 | ~0.65 | 29.1% | Very stable |
+| 5K | ~13–17 | ~0.69 | 21.7% | Stable (late noise) |
+| 10K | ~15–20 | ~0.70 | 22.3% | Slightly noisy |
+
+#### 5.3 Observations
+
+**1. Reconstruction performance** improves monotonically with dataset size. Best val recon fell from 0.0447 (1K) to 0.0309 (10K) — a 31% reduction. Gains are largest from 1K → 2K and diminish at higher scales, consistent with diminishing returns.
+
+**2. Convergence speed** increases with dataset size. The 1K run needed ~20 epochs to plateau; 5K and 10K converged by ~13–20 epochs. Larger datasets provide more diverse examples per epoch, enabling the model to learn structure more efficiently per pass.
+
+**3. Training stability** is high across all runs. Reconstruction loss decreased smoothly, with train and val curves closely aligned throughout, indicating no overfitting. Minor fluctuations appeared in later epochs for 5K and 10K, reflecting convergence plateaus rather than instability.
+
+**4. Codebook utilisation** remained largely unchanged. Normalised perplexity stayed in the narrow range ~0.65–0.70 across all dataset sizes, and dead-code rates held at ~22–29%. Scaling data alone did not meaningfully reduce collapse — the active-code ceiling appears to be set by training dynamics and the reconstruction objective, not by data diversity.
+
+**5. VQ loss** followed a consistent pattern across all runs: rose during early epochs as the encoder adapted to the discrete bottleneck, then stabilised. No divergence or instability was observed in the quantisation process at any scale.
+
+**Key takeaway:** Scaling the dataset improves reconstruction quality and learning efficiency without compromising stability. However, codebook collapse is not resolved by more data — dead-code rates are nearly identical at 1K and 10K. This confirms the conclusion from Experiments 1–4: collapse is a training-dynamics problem driven by the reconstruction objective's indifference to code diversity, and will require changes to the quantisation mechanism (e.g. entropy regularisation, diversity-aware loss terms) rather than additional data.
 
 ---
 
