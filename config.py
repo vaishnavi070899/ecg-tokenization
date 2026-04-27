@@ -5,7 +5,7 @@ import os
 # ── Dataset ────────────────────────────────────────────────────────────────────
 PTB_XL_PATH = os.environ.get(
     "PTB_XL_PATH",
-    "path"
+    "path/to/ptb-xl"
 )
 
 # ── Signal ─────────────────────────────────────────────────────────────────────
@@ -15,17 +15,18 @@ LEAD           = 0      # lead index (0 = lead I)
 
 # ── VQ-VAE architecture ────────────────────────────────────────────────────────
 LATENT_DIM      = 64   # encoder output channels = codebook vector dimension D
-NUM_EMBEDDINGS  = 512   # codebook size K
+NUM_EMBEDDINGS  = 128   # codebook size K (per RVQ stage)
+NUM_RVQ_STAGES  = 4    # RVQ stages: 1 = standard single-stage VQ, 2+ = residual VQ
 SEQ_LEN         = INPUT_DIM // 8   # 125 — latent time steps after 8x downsampling
 
 # ── VQ-VAE training ────────────────────────────────────────────────────────────
 EMA_DECAY        = 0.95   # EMA decay γ for codebook updates
 COMMITMENT_COST  = 0.25   # β — weight on commitment loss
 BUFFER_SIZE      = 2048   # circular buffer size for K-Means Centroid Reset (Strategy 2)
-BATCH_SIZE       = 16
-EPOCHS           = 10
+BATCH_SIZE       = 32
+EPOCHS           = 20
 LR               = 1e-3
-N_RECORDS        = None   # cap per split for quick runs; set to None for full ~21k dataset
+N_RECORDS        = 1000   # cap per split for quick runs; set to None for full ~21k dataset
 
 # ── Prior architecture ─────────────────────────────────────────────────────────
 D_MODEL   = 128

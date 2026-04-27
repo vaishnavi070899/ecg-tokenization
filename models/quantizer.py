@@ -318,3 +318,90 @@ class VectorQuantizer(nn.Module):
             self.codebook[dead_idx]          = anchors[i].detach()
             self.ema_cluster_size[dead_idx]  = 1.0
             self.ema_embedding_sum[dead_idx] = anchors[i].detach()
+
+
+# ── Residual Vector Quantizer ──────────────────────────────────────────────────
+
+class ResidualVectorQuantizer(nn.Module):
+    """Two-stage Residual VQ layer.
+
+    Stage 1 quantizes the encoder output z_e normally.
+    Stage 2 quantizes the residual  r = z_e − z_q1.
+    The decoder receives z_q1 + z_q2.
+
+    Each stage is an independent VectorQuantizer with its own codebook and EMA
+    accumulators, so the two codebooks specialise on different signal components.
+
+    Straight-through gradients flow back through both stages independently:
+      ∂(z_q1)/∂z_e = 1   (stage-1 straight-through)
+      ∂(z_q2)/∂z_e = 1   (stage-2 straight-through via residual = z_e − z_q1.detach())
+    The encoder therefore receives gradient signal from both stages, which
+    strengthens the learning signal relative to single-stage VQ.
+
+    Args:
+        num_stages:      Number of RVQ stages (default 2).
+        num_embeddings:  Codebook size K (shared across stages).
+        embedding_dim:   Vector dimensionality D.
+        commitment_cost: β — weight on commitment loss (shared across stages).
+        decay:           EMA decay γ (shared across stages).
+        epsilon:         Laplace smoothing constant.
+        buffer_size:     Circular buffer size for K-Means Centroid Reset.
+
+    Input:  z_e  (B, D, T)  — continuous encoder output
+    Output: z_q         (B, D, T)  — sum of quantized outputs from all stages
+            vq_loss     scalar     — sum of commitment losses across stages
+            perplexity  scalar     — average perplexity across stages
+            all_indices list[(B, T)] — per-stage codebook index tensors
+    """
+
+    def __init__(self, num_stages=2, num_embeddings=512, embedding_dim=64,
+                 commitment_cost=0.25, decay=0.99, epsilon=1e-5, buffer_size=2048):
+        super().__init__()
+        self.num_stages = num_stages
+        self.stages = nn.ModuleList([
+            VectorQuantizer(
+                num_embeddings=num_embeddings,
+                embedding_dim=embedding_dim,
+                commitment_cost=commitment_cost,
+                decay=decay,
+                epsilon=epsilon,
+                buffer_size=buffer_size,
+            )
+            for _ in range(num_stages)
+        ])
+
+    def forward(self, z):
+        """
+        Args:
+            z: (B, D, T) — encoder output
+
+        Returns:
+            z_q_total:     (B, D, T)
+            total_vq_loss: scalar
+            avg_perplexity: scalar
+            all_indices:   list of (B, T) int tensors, length = num_stages
+        """
+        z_q_total      = torch.zeros_like(z)
+        total_vq_loss  = z.new_tensor(0.0)
+        perplexities   = []
+        all_indices    = []
+        residual_norms = []
+        residual       = z
+
+        for stage in self.stages:
+            z_q_stage, loss, perplexity, indices = stage(residual)
+
+            z_q_total     = z_q_total + z_q_stage
+            total_vq_loss = total_vq_loss + loss
+            perplexities.append(perplexity)
+            all_indices.append(indices)
+
+            # Residual for the next stage: subtract the hard-quantized value.
+            # z_q_stage uses straight-through, so z_q_stage.detach() == z_q_hard.detach().
+            residual = residual - z_q_stage.detach()
+
+            # Track residual MSE after this stage (no gradient needed)
+            residual_norms.append(residual.pow(2).mean().item())
+
+        avg_perplexity = sum(perplexities) / self.num_stages
+        return z_q_total, total_vq_loss, avg_perplexity, all_indices, residual_norms

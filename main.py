@@ -31,7 +31,8 @@ print(f"Train: {len(train_dataset)} records  |  Val: {len(val_dataset)} records"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model  = VQVAE(input_dim=config.INPUT_DIM, latent_dim=config.LATENT_DIM,
                num_embeddings=config.NUM_EMBEDDINGS, decay=config.EMA_DECAY,
-               buffer_size=config.BUFFER_SIZE).to(device)
+               buffer_size=config.BUFFER_SIZE,
+               num_rvq_stages=config.NUM_RVQ_STAGES).to(device)
 
 if args.resume:
     model.load_state_dict(torch.load("vqvae_best.pt", map_location=device))
@@ -48,10 +49,11 @@ for epoch in range(args.start_epoch, config.EPOCHS + 1):
     # ── Train ──────────────────────────────────────────────────────────────────
     model.train()
     total_recon = total_vq = total_perp = 0.0
+    total_residuals = None   # will become a list of per-stage accumulators
 
     for x in train_loader:
         x = x.to(device)
-        x_recon, vq_loss, perplexity = model(x)
+        x_recon, vq_loss, perplexity, residual_norms = model(x)
 
         recon_loss = recon_loss_fn(x_recon, x)
         loss       = recon_loss + vq_loss
@@ -64,11 +66,18 @@ for epoch in range(args.start_epoch, config.EPOCHS + 1):
         total_vq    += vq_loss.item()
         total_perp  += perplexity.item()
 
+        if total_residuals is None:
+            total_residuals = [0.0] * len(residual_norms)
+        for i, r in enumerate(residual_norms):
+            total_residuals[i] += r
+
     n = len(train_loader)
+    res_str = "  residual=[" + "|".join(f"{v/n:.6f}" for v in total_residuals) + "]"
     print(f"Epoch {epoch:3d}/{config.EPOCHS}  "
           f"train_recon={total_recon/n:.6f}  "
           f"vq={total_vq/n:.6f}  "
-          f"perplexity={total_perp/n:.1f}/{config.NUM_EMBEDDINGS}",
+          f"perplexity={total_perp/n:.1f}/{config.NUM_EMBEDDINGS}"
+          f"{res_str}",
           end="")
 
     # ── Validate ───────────────────────────────────────────────────────────────
@@ -78,7 +87,7 @@ for epoch in range(args.start_epoch, config.EPOCHS + 1):
     with torch.no_grad():
         for x in val_loader:
             x = x.to(device)
-            x_recon, _, _ = model(x)
+            x_recon, _, _, _ = model(x)
             val_recon += recon_loss_fn(x_recon, x).item()
 
     avg_val = val_recon / len(val_loader)
