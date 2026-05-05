@@ -255,11 +255,12 @@ self.random_restart(dead_indices=dead_indices, flat=flat)          # Strategy 1
 ## Loss Function
 
 ```
-total_loss = MSE(x_recon, x) + β * ||z_e - sg(z_q)||^2
+total_loss = MSE(x_recon, x) + β * ||z_e - sg(z_q)||^2 + λ * entropy_loss
 ```
 
 - **Reconstruction loss:** MSE between original and reconstructed signal
 - **Commitment loss:** keeps encoder outputs close to codebook entries (β=0.25)
+- **Entropy loss:** negative entropy of soft codebook assignment distribution (λ=0.01); minimizing encourages uniform codebook usage
 - **Codebook update:** EMA (not gradient), γ=0.95
 
 ---
@@ -432,6 +433,65 @@ Each additional stage yields a ~2–2.5× improvement in MSE. The 1→2 layer ju
 **6. Training dynamics** were stable across all configs. All runs showed fast initial descent (epochs 1–5) followed by monotonic improvement. No divergence or instability was observed at any depth.
 
 **Key takeaway:** 3-layer RVQ offers the best MSE-per-stage efficiency. 4 layers is worthwhile if compute allows, but the marginal gain (0.009 → 0.006 MSE) should be weighed against the persistent dead code problem. The dead code issue is unresolved across all RVQ depths and codebook sizes — it warrants a dedicated intervention (entropy regularisation, usage penalty, or diversity-aware loss) before scaling further. Reducing K is not a full substitute: it forces utilisation but caps capacity. These are complementary approaches.
+
+---
+
+### Experiment 7 — Introducing an Entropy Regularization Loss Term
+
+**Objective:** Determine whether adding a differentiable entropy regularization term to the training loss encourages more uniform codebook usage and reduces dead codes.
+
+**Hypothesis:** Penalizing low-entropy code usage distributions will push the encoder to spread representations more evenly across the codebook, reducing collapse without requiring explicit dead code detection or reset.
+
+**Method:** A soft entropy loss is computed each forward pass using softmax over encoder-to-codebook distances (differentiable, unlike the hard argmin used for quantization). Minimizing the negative entropy of the resulting soft assignment distribution encourages the encoder to produce representations that are more uniformly spread across codebook entries. Gradients flow only through the encoder — the codebook buffer is detached to avoid conflicts with the EMA in-place update.
+
+```
+entropy_loss = Σ avg_soft_probs * log(avg_soft_probs + ε)   (≤ 0; minimizing maximizes entropy)
+total_loss   = MSE(x_recon, x) + β·commitment_loss + λ·entropy_loss
+```
+
+For RVQ, the entropy loss is summed across all stages.
+
+**Settings:** K=512, 4-layer RVQ, EMA_DECAY=0.95, β=0.25, K-Means Centroid Reset active, Adam (LR=1e-3), batch size=32, 1K records, 15 epochs, lead I, z-score normalised. λ varied across {0.01, 0.1}.
+
+#### 7.1 Results
+
+| λ | Best Val Recon | Peak Perplexity | Active Codes (Stage 1) | Dead Codes (Stage 1) |
+|---|---|---|---|---|
+| 0 (baseline, Exp 6) | 0.0061 | 333 / 512 | 398 / 512 | 22.3% |
+| 0.01 | 0.009256 | ~374 / 512 | 353 / 512 | 31.1% |
+| 0.1 | 0.012255 | ~378 / 512 | 364 / 512 | 28.9% |
+
+#### 7.2 Training Dynamics
+
+**λ = 0.01**
+
+| Epoch | train_recon | vq_loss | entropy | perplexity |
+|---|---|---|---|---|
+| 1 | 0.5419 | 0.0059 | −24.62 | 187.0 / 512 |
+| 5 | 0.0198 | 0.0080 | −24.46 | 373.6 / 512 |
+| 10 | 0.0114 | 0.0119 | −24.30 | 360.3 / 512 |
+| 14 | 0.0095 | 0.0132 | −24.19 | 348.5 / 512 |
+
+**λ = 0.1**
+
+| Epoch | train_recon | vq_loss | entropy | perplexity |
+|---|---|---|---|---|
+| 1 | 0.4378 | 0.0066 | −24.58 | 188.4 / 512 |
+| 5 | 0.0218 | 0.0153 | −24.49 | 382.5 / 512 |
+| 10 | 0.0149 | 0.0378 | −24.16 | 376.1 / 512 |
+| 14 | 0.0129 | 0.0606 | −23.96 | 370.9 / 512 |
+
+#### 7.3 Observations
+
+**1. No meaningful improvement in codebook utilisation.** Both λ settings produce active code counts and perplexity values within the same range as the Experiment 6 baseline (Exp 6: 398 active codes; Exp 7: 353–364). The entropy regularization did not reduce dead codes relative to the reset-only baseline.
+
+**2. λ = 0.1 destabilises training.** The entropy loss magnitude is approximately 24 (4 stages × ~6 nats each). At λ = 0.1, the entropy term contributes ~2.4 to the total loss — roughly 100× larger than the reconstruction loss by mid-training. This overwhelms the commitment loss: VQ loss climbs monotonically from 0.007 to 0.068, residual norms grow significantly across all stages, and reconstruction quality degrades relative to baseline.
+
+**3. λ = 0.01 is stable but marginal.** Entropy improves slowly (−24.62 → −24.19) and perplexity rises initially before declining, suggesting the signal is too weak to overcome the training dynamics that drive collapse. Reconstruction quality is slightly worse than the reset-only baseline (0.009 vs 0.006).
+
+**4. The mechanism mismatch.** Entropy regularization acts on the encoder via soft (differentiable) assignments, but codebook updates use hard argmin assignments. A dead code that never wins a hard assignment receives no EMA update regardless of its soft probability — the encoder gradient cannot revive it. The K-Means Centroid Reset directly targets this failure mode; entropy loss cannot.
+
+**Key takeaway:** No noticeable improvement was observed with entropy regularization. The approach is theoretically motivated but practically ineffective in this setting — it is a preventive regularizer operating on a different assignment geometry than the EMA update that drives collapse. The K-Means Centroid Reset remains the primary mechanism. Entropy regularization may offer marginal benefit as an early-training stabilizer but does not reduce dead codes or improve reconstruction relative to the reset-only baseline.
 
 ---
 

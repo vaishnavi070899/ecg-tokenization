@@ -43,15 +43,15 @@ class VQVAE(nn.Module):
         z_e = self.encoder(x)                                # (B, D, T)
 
         if isinstance(self.quantizer, ResidualVectorQuantizer):
-            z_q, vq_loss, perplexity, _, residual_norms = self.quantizer(z_e)
+            z_q, vq_loss, perplexity, _, residual_norms, entropy_loss = self.quantizer(z_e)
         else:
-            z_q, vq_loss, perplexity, _  = self.quantizer(z_e)
+            z_q, vq_loss, perplexity, _, entropy_loss = self.quantizer(z_e)
             # Quantization error in latent space — (z_e − z_q) has zero net gradient
             # (straight-through cancels), so .pow(2).mean() is safe to call here.
             residual_norms = [(z_e - z_q).pow(2).mean().item()]
 
         x_recon = self.decoder(z_q)                         # (B, L)
-        return x_recon, vq_loss, perplexity, residual_norms
+        return x_recon, vq_loss, perplexity, residual_norms, entropy_loss
 
     # ── Encode / decode helpers ────────────────────────────────────────────────
 

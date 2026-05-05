@@ -29,6 +29,7 @@ ResetWeek2Exp2/
 DataScalingExp4/
 EMADecayExp3/
 RVQExp5/
+EntropyRegularizationExp13/
 
 # Jupyter
 .ipynb_checkpoints/

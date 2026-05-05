@@ -56,67 +56,71 @@ class VectorQuantizer(nn.Module):
         z = z.permute(0, 2, 1).contiguous()      # (B, D, T) → (B, T, D)
         flat = z.view(-1, self.embedding_dim)     # (B*T, D)
 
-        # Squared L2 distances to every codebook entry
-        distances = (
+        # ── Non-differentiable block: quantization + EMA update ────────────────
+        # Wrapped in no_grad so that flat @ self.codebook.t() never saves
+        # self.codebook as a backward-needed tensor. This prevents the in-place
+        # codebook.copy_() from triggering a version-mismatch error at backward.
+        with torch.no_grad():
+            distances = (
+                flat.pow(2).sum(1, keepdim=True)
+                - 2 * flat @ self.codebook.t()
+                + self.codebook.pow(2).sum(1)
+            )  # (B*T, K)
+
+            indices    = distances.argmin(1)                       # (B*T,)
+            z_q        = self.codebook[indices].view(z.shape)      # (B, T, D)
+            indices_2d = indices.view(z.shape[0], z.shape[1])     # (B, T)
+
+            one_hot = torch.zeros(flat.shape[0], self.num_embeddings, device=flat.device)
+            one_hot.scatter_(1, indices.unsqueeze(1), 1)           # (B*T, K)
+            avg_probs  = one_hot.mean(0)                           # (K,)
+            perplexity = torch.exp(-torch.sum(avg_probs * torch.log(avg_probs + 1e-10)))
+
+            # ── EMA update (training only) ─────────────────────────────────────
+            if self.training:
+                cluster_size  = one_hot.sum(0)                     # (K,)
+                embedding_sum = one_hot.t() @ flat                 # (K, D)
+
+                self.ema_cluster_size.mul_(self.decay).add_(cluster_size,  alpha=1 - self.decay)
+                self.ema_embedding_sum.mul_(self.decay).add_(embedding_sum, alpha=1 - self.decay)
+
+                n = self.ema_cluster_size.sum()
+                smoothed = (
+                    (self.ema_cluster_size + self.epsilon)
+                    / (n + self.num_embeddings * self.epsilon) * n
+                )                                                   # (K,)
+                self.codebook.copy_(self.ema_embedding_sum / smoothed.unsqueeze(1))
+
+                # ── Codebook Reset ────────────────────────────────────────────
+                dead_indices, dead_mask = self.find_dead_codes(
+                    ema_cluster_size = self.ema_cluster_size,
+                    threshold        = 1.0,
+                )
+                #
+                # ── Strategy 1: Random Restart ────────────────────────────────
+                # self.random_restart(dead_indices=dead_indices, flat=flat)
+                #
+                # ── Strategy 2: K-Means Centroid Reset ───────────────────────
+                self.update_buffer(flat)
+                self.kmeans_centroid_reset(dead_indices=dead_indices)
+                #
+                # ── Strategy 3: Anchor Resampling ────────────────────────────
+                # active_codes = (~dead_mask).nonzero(as_tuple=True)[0]
+                # self.anchor_resampling(dead_indices=dead_indices, flat=flat,
+                #                        active_codes=active_codes)
+
+        # ── Entropy regularization loss (differentiable) ───────────────────────
+        # Computed after the EMA update so it uses the refreshed codebook.
+        # Codebook is detached: gradients flow only through flat (encoder output).
+        cb = self.codebook.detach()
+        entropy_distances = (
             flat.pow(2).sum(1, keepdim=True)
-            - 2 * flat @ self.codebook.t()
-            + self.codebook.pow(2).sum(1)
-        )  # (B*T, K)
-
-        indices = distances.argmin(1)                          # (B*T,)
-        z_q = self.codebook[indices].view(z.shape)            # (B, T, D)
-        indices_2d = indices.view(z.shape[0], z.shape[1])     # (B, T) — for prior training
-
-        # ── Perplexity (always computed) ───────────────────────────────────────
-        one_hot = torch.zeros(flat.shape[0], self.num_embeddings, device=flat.device)
-        one_hot.scatter_(1, indices.unsqueeze(1), 1)          # (B*T, K)
-        avg_probs  = one_hot.mean(0)                          # (K,)  usage distribution
-        perplexity = torch.exp(-torch.sum(avg_probs * torch.log(avg_probs + 1e-10)))
-
-        # ── EMA update (training only) ─────────────────────────────────────────
-        if self.training:
-
-            cluster_size  = one_hot.sum(0)                    # (K,)  reuse one_hot from above
-            embedding_sum = one_hot.t() @ flat                # (K, D)
-
-            self.ema_cluster_size.mul_(self.decay).add_(cluster_size,  alpha=1 - self.decay)
-            self.ema_embedding_sum.mul_(self.decay).add_(embedding_sum, alpha=1 - self.decay)
-
-            # Laplace smoothing so codes with 0 assignments don't collapse to 0
-            n = self.ema_cluster_size.sum()
-            smoothed = (
-                (self.ema_cluster_size + self.epsilon)
-                / (n + self.num_embeddings * self.epsilon) * n
-            )                                                  # (K,)
-            self.codebook.copy_(self.ema_embedding_sum / smoothed.unsqueeze(1))
-
-            # ── Codebook Reset — call site (pick ONE strategy, keep others commented) ─
-            # Step 1: detect dead codes (shared by all three strategies)
-            #
-            dead_indices, dead_mask = self.find_dead_codes(
-                ema_cluster_size = self.ema_cluster_size,
-                threshold        = 1.0,
-            )  # dead_indices: 1-D LongTensor of dead code positions; dead_mask: boolean (K,) tensor
-            #
-            # ── Strategy 1: Random Restart ────────────────────────────────────
-            # self.random_restart(
-            #     dead_indices = dead_indices,
-            #     flat         = flat,
-            # )
-            #
-            # ── Strategy 2: K-Means Centroid Reset ───────────────────────────
-            self.update_buffer(flat)                   # keep buffer current
-            self.kmeans_centroid_reset(
-                dead_indices = dead_indices,
-            )
-            #
-            # ── Strategy 3: Anchor Resampling ────────────────────────────────
-            # active_codes = (~dead_mask).nonzero(as_tuple=True)[0]  # live code indices
-            # self.anchor_resampling(
-            #     dead_indices = dead_indices,
-            #     flat         = flat,
-            #     active_codes = active_codes,
-            # )
+            - 2 * flat @ cb.t()
+            + cb.pow(2).sum(1)
+        )                                                      # (B*T, K)
+        soft_probs     = torch.softmax(-entropy_distances, dim=1)
+        avg_soft_probs = soft_probs.mean(0)                    # (K,)
+        entropy_loss   = (avg_soft_probs * torch.log(avg_soft_probs + 1e-10)).sum()  # ≤ 0
 
         # Commitment loss: push encoder outputs toward codebook (sg on codebook)
         commitment_loss = self.commitment_cost * (z - z_q.detach()).pow(2).mean()
@@ -125,7 +129,7 @@ class VectorQuantizer(nn.Module):
         z_q = z + (z_q - z).detach()                         # (B, T, D)
         z_q = z_q.permute(0, 2, 1).contiguous()              # (B, D, T)
 
-        return z_q, commitment_loss, perplexity, indices_2d
+        return z_q, commitment_loss, perplexity, indices_2d, entropy_loss
     
     # ── Strategy 3 method stubs (all commented out — implement before enabling) ──
     #
@@ -381,18 +385,20 @@ class ResidualVectorQuantizer(nn.Module):
             avg_perplexity: scalar
             all_indices:   list of (B, T) int tensors, length = num_stages
         """
-        z_q_total      = torch.zeros_like(z)
-        total_vq_loss  = z.new_tensor(0.0)
-        perplexities   = []
-        all_indices    = []
-        residual_norms = []
-        residual       = z
+        z_q_total          = torch.zeros_like(z)
+        total_vq_loss      = z.new_tensor(0.0)
+        total_entropy_loss = z.new_tensor(0.0)
+        perplexities       = []
+        all_indices        = []
+        residual_norms     = []
+        residual           = z
 
         for stage in self.stages:
-            z_q_stage, loss, perplexity, indices = stage(residual)
+            z_q_stage, loss, perplexity, indices, entropy_loss = stage(residual)
 
-            z_q_total     = z_q_total + z_q_stage
-            total_vq_loss = total_vq_loss + loss
+            z_q_total          = z_q_total + z_q_stage
+            total_vq_loss      = total_vq_loss + loss
+            total_entropy_loss = total_entropy_loss + entropy_loss
             perplexities.append(perplexity)
             all_indices.append(indices)
 
@@ -404,4 +410,4 @@ class ResidualVectorQuantizer(nn.Module):
             residual_norms.append(residual.pow(2).mean().item())
 
         avg_perplexity = sum(perplexities) / self.num_stages
-        return z_q_total, total_vq_loss, avg_perplexity, all_indices, residual_norms
+        return z_q_total, total_vq_loss, avg_perplexity, all_indices, residual_norms, total_entropy_loss
