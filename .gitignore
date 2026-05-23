@@ -22,14 +22,7 @@ env/
 
 # Generated plots and experiment outputs
 *.png
-SweepWeek1Exp1/
-ResetWeek2Exp1/
-ResetWeek2Exp12/
-ResetWeek2Exp2/
-DataScalingExp4/
-EMADecayExp3/
-RVQExp5/
-EntropyRegularizationExp13/
+Experiment Logs/
 
 # Jupyter
 .ipynb_checkpoints/

@@ -44,7 +44,7 @@ def reconstruct(n=4, checkpoint="vqvae_best.pt", save_path=None):
     signals = torch.stack([dataset[i] for i in range(n)]).to(device)  # (n, 1000)
 
     with torch.no_grad():
-        recons, _, _, _, _ = model(signals)   # (n, 1000)
+        recons, _, _, _, _, _ = model(signals)   # (n, 1000)
 
     originals = signals.cpu().numpy()
     recons    = recons.cpu().numpy()

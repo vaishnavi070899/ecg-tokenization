@@ -46,7 +46,7 @@ def load_model(device):
 
 def compute_mse(model, signals, device):
     with torch.no_grad():
-        recons, _, _, _, _ = model(signals.to(device))
+        recons, _, _, _, _, _ = model(signals.to(device))
     return signals.numpy(), recons.cpu().numpy()
 
 
@@ -59,7 +59,7 @@ def compute_residual_norms(model, signals, device):
     Values should decrease across stages if each stage is learning something new.
     """
     with torch.no_grad():
-        _, _, _, residual_norms, _ = model(signals.to(device))
+        _, _, _, residual_norms, _, _ = model(signals.to(device))
     return residual_norms   # list of floats, length = num_stages
 
 
@@ -204,9 +204,9 @@ print()
 
 # ── Plots ──────────────────────────────────────────────────────────────────────
 save_recon_plot(originals, recons, mse_per_signal,
-                K=K, num_stages=num_stages, trained=trained, path="recon_01.png")
+                K=K, num_stages=num_stages, trained=trained, path=f"Experiment Logs/SoftAssignment-K256/recon_05.png")
 
 for s, usage in enumerate(usages, start=1):
     stage_label = f"Stage {s}" if num_stages > 1 else "VQ"
     save_codebook_histogram(usage, K=K, stage_label=stage_label,
-                            trained=trained, path=f"codebook_stage_01{s}.png")
+                            trained=trained, path=f"Experiment Logs/SoftAssignment-K256/codebook_05_stage_{s}.png")
