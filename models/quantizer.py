@@ -31,14 +31,20 @@ class VectorQuantizer(nn.Module):
 
     def __init__(self, num_embeddings=128, embedding_dim=64,
                  commitment_cost=0.25, decay=0.99, epsilon=1e-5,
-                 buffer_size=2048):
+                 buffer_size=2048, use_nsvq=False, tau=1.0, nsvq_alpha=0.1,
+                 nsvq_repulse_gamma=0.05, nsvq_at_risk_thresh=5.0):
         super().__init__()
-        self.embedding_dim   = embedding_dim
-        self.num_embeddings  = num_embeddings
-        self.commitment_cost = commitment_cost
-        self.decay           = decay
-        self.epsilon         = epsilon
-        self.buffer_size     = buffer_size
+        self.embedding_dim       = embedding_dim
+        self.num_embeddings      = num_embeddings
+        self.commitment_cost     = commitment_cost
+        self.decay               = decay
+        self.epsilon             = epsilon
+        self.buffer_size         = buffer_size
+        self.use_nsvq            = use_nsvq
+        self.tau                 = tau
+        self.nsvq_alpha          = nsvq_alpha
+        self.nsvq_repulse_gamma  = nsvq_repulse_gamma
+        self.nsvq_at_risk_thresh = nsvq_at_risk_thresh
 
         # Codebook: registered as a buffer so the optimizer never touches it
         codebook = torch.empty(num_embeddings, embedding_dim)
@@ -86,6 +92,9 @@ class VectorQuantizer(nn.Module):
                 )                                                   # (K,)
                 self.codebook.copy_(self.ema_embedding_sum / smoothed.unsqueeze(1))
 
+                if self.use_nsvq:
+                    self.nsvq_kernel_update(cluster_size, embedding_sum, smoothed)
+
                 dead_indices, _ = self.find_dead_codes(
                     ema_cluster_size=self.ema_cluster_size,
                     threshold=1.0,
@@ -119,6 +128,94 @@ class VectorQuantizer(nn.Module):
         dead_mask    = (ema_cluster_size < threshold)          # boolean (K,)
         dead_indices = dead_mask.nonzero(as_tuple=True)[0]     # 1-D LongTensor
         return dead_indices, dead_mask
+
+    def nsvq_kernel_update(self, cluster_size, embedding_sum, smoothed):
+        """NS-VQ kernel update: propagate winning-code influence to at-risk codes,
+        then scatter them apart to prevent clustering.
+
+        Only codes that are BOTH unselected this batch AND have low EMA usage
+        (ema_cluster_size < nsvq_at_risk_thresh) receive the update.  Skipping
+        healthy-but-unselected codes prevents them from being dragged into
+        already-crowded winner regions.
+
+        Step 1 — Attraction:
+            target[j] = Σ_i [count_i * K(ei,ej) * mean_z_i] / Σ_i [count_i * K(ei,ej)]
+            ej       += nsvq_alpha * (target[j] - ej)
+
+        Step 2 — Repulsion (short-range, tau_rep = tau * 0.5):
+            nbr_mean[j] = Σ_k K_rep(ej,ek) * ek / Σ_k K_rep(ej,ek)   (all codes)
+            ej          += nsvq_repulse_gamma * (ej - nbr_mean[j])
+
+        Both steps share the same pairwise distance matrix computed once from the
+        pre-update codebook.  EMA embedding sums are synced after both steps.
+
+        Args:
+            cluster_size:  (K,) current-batch assignment counts (not EMA-smoothed)
+            embedding_sum: (K, D) sum of encoder outputs per code (current batch)
+            smoothed:      (K,) Laplace-smoothed EMA cluster sizes (for EMA sync)
+        """
+        selected = cluster_size > 0                                       # (K,) bool
+        # ── At-risk filter ──────────────────────────────────────────────────────
+        # Only update codes that are BOTH skipped this batch AND genuinely struggling.
+        # Healthy non-selected codes are left alone.
+        at_risk = ~selected & (self.ema_cluster_size < self.nsvq_at_risk_thresh)
+        if not at_risk.any() or not selected.any():
+            return
+
+        # Mean encoder output for each selected (winning) code
+        mean_z = torch.zeros_like(self.codebook)                          # (K, D)
+        mean_z[selected] = (
+            embedding_sum[selected] / cluster_size[selected].unsqueeze(1)
+        )
+
+        # Pairwise squared distances from pre-update codebook: dist[i,j] = ||ei-ej||²
+        cb   = self.codebook                                              # (K, D)
+        dist = (
+            cb.pow(2).sum(1, keepdim=True)
+            + cb.pow(2).sum(1)
+            - 2 * cb @ cb.t()
+        ).clamp(min=0)                                                    # (K, K)
+
+        # ── Step 1: Attraction toward winning-code encoder outputs ─────────────
+        kernel = torch.exp(-dist / self.tau)                              # (K, K)
+        w = cluster_size.unsqueeze(1) * kernel                           # (K, K)
+        w[~selected] = 0.0                                               # sources = selected only
+
+        total_weight = w.sum(0)                                           # (K,)
+        target = (w.t() @ mean_z) / total_weight.clamp(min=1e-6).unsqueeze(1)
+
+        ns = at_risk
+        self.codebook[ns] = (
+            self.codebook[ns] + self.nsvq_alpha * (target[ns] - self.codebook[ns])
+        )
+
+        # ── Step 2: Repulsion — scatter at-risk codes away from dense neighbours ─
+        # tau_rep is derived from the ACTUAL median NN distance of the current
+        # codebook, not from self.tau, so it stays correct throughout training
+        # regardless of how spread out the codebook is at this moment.
+        nn_dist = dist.masked_fill(
+            torch.eye(self.num_embeddings, dtype=torch.bool, device=cb.device), float('inf')
+        )
+        tau_rep = max(float(nn_dist.min(1).values.median()) * 0.5, 1e-4)
+
+        rep_k       = torch.exp(-dist / tau_rep)                          # (K, K)
+        rep_k       = rep_k * (1.0 - torch.eye(self.num_embeddings, device=cb.device))
+        row_sum_rep = rep_k.sum(1, keepdim=True)                          # (K, 1) — NO clamp
+        has_nbrs    = row_sum_rep.squeeze(1) > 1e-4                       # (K,) meaningful kernel support
+        ns_rep      = ns & has_nbrs
+        if ns_rep.any():
+            nbr_mean = torch.zeros_like(cb)                               # (K, D)
+            nbr_mean[has_nbrs] = (
+                (rep_k @ cb)[has_nbrs] / row_sum_rep[has_nbrs]
+            )
+            # Push at-risk codes away from their local neighbourhood centre
+            self.codebook[ns_rep] = (
+                self.codebook[ns_rep]
+                + self.nsvq_repulse_gamma * (self.codebook[ns_rep] - nbr_mean[ns_rep])
+            )
+
+        # ── Sync EMA so next EMA step doesn't undo both updates ────────────────
+        self.ema_embedding_sum[ns] = self.codebook[ns] * smoothed[ns].unsqueeze(1)
 
     def random_restart(self, dead_indices, flat):
         """Strategy 1 — replace each dead code with a randomly chosen encoder
@@ -327,9 +424,13 @@ class ResidualVectorQuantizer(nn.Module):
     """
 
     def __init__(self, num_stages=2, num_embeddings=512, embedding_dim=64,
-                 commitment_cost=0.25, decay=0.99, epsilon=1e-5, buffer_size=2048):
+                 commitment_cost=0.25, decay=0.99, epsilon=1e-5, buffer_size=2048,
+                 use_nsvq=False, tau_per_stage=None, nsvq_alpha=0.1,
+                 nsvq_repulse_gamma=0.05, nsvq_at_risk_thresh=5.0):
         super().__init__()
         self.num_stages = num_stages
+        if tau_per_stage is None:
+            tau_per_stage = [1.0] * num_stages
         self.stages = nn.ModuleList([
             VectorQuantizer(
                 num_embeddings=num_embeddings,
@@ -338,8 +439,13 @@ class ResidualVectorQuantizer(nn.Module):
                 decay=decay,
                 epsilon=epsilon,
                 buffer_size=buffer_size,
+                use_nsvq=use_nsvq,
+                tau=tau_per_stage[s],
+                nsvq_alpha=nsvq_alpha,
+                nsvq_repulse_gamma=nsvq_repulse_gamma,
+                nsvq_at_risk_thresh=nsvq_at_risk_thresh,
             )
-            for _ in range(num_stages)
+            for s in range(num_stages)
         ])
 
     def forward(self, z):

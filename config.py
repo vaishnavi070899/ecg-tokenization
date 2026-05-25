@@ -28,6 +28,16 @@ EPOCHS           = 20
 LR               = 1e-3
 N_RECORDS        = 1000   # cap per split for quick runs; set to None for full ~21k dataset
 
+# ── NS-VQ (Non-Stationary Vector Quantization) ────────────────────────────────
+NSVQ_ALPHA  = 0.1    # kernel update step size for non-selected codes
+# Per-stage τ (bandwidth) = scale of RBF kernel; derived from mean NN distances
+# Stage:                    1      2      3      4
+NSVQ_TAU_A  = [0.40,  0.23,  0.14,  0.10]   # tight   (×0.2 × mean NN dist)
+NSVQ_TAU_B  = [2.01,  1.13,  0.71,  0.49]   # moderate (×1.0 × mean NN dist)
+NSVQ_TAU_C  = [4.03,  2.25,  1.41,  0.98]   # broad    (×2.0 × mean NN dist)
+NSVQ_TAU_D  = [1.75,  1.05,  0.69,  0.48]   # based on run-B distances
+NSVQ_REPULSE_GAMMA  = 0.05   # step size for repulsion away from local neighbourhood
+NSVQ_AT_RISK_THRESH = 5.0    # only apply NS-VQ to codes with EMA usage below this
 # ── Prior architecture ─────────────────────────────────────────────────────────
 D_MODEL   = 128
 N_HEADS   = 4

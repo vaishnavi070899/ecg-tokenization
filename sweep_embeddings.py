@@ -27,10 +27,10 @@ from models.vqvae import VQVAE
 N_RECORDS = 8    # val records used for every metric
 N_DISPLAY = 4    # records shown in the recon plot
 
-
+arg_runname = "B"   # used in plot filenames; should match the --nsvq-run value used during training
 # ── Helpers ────────────────────────────────────────────────────────────────────
 def load_model(device):
-    ckpt  = "vqvae_best.pt"
+    ckpt  = f"vqvae_best_run{arg_runname}.pt"
     model = VQVAE(input_dim=config.INPUT_DIM, latent_dim=config.LATENT_DIM,
                   num_embeddings=config.NUM_EMBEDDINGS,
                   num_rvq_stages=config.NUM_RVQ_STAGES)
@@ -46,7 +46,7 @@ def load_model(device):
 
 def compute_mse(model, signals, device):
     with torch.no_grad():
-        recons, _, _, _, _, _ = model(signals.to(device))
+        recons, _, _, _ = model(signals.to(device))
     return signals.numpy(), recons.cpu().numpy()
 
 
@@ -59,7 +59,7 @@ def compute_residual_norms(model, signals, device):
     Values should decrease across stages if each stage is learning something new.
     """
     with torch.no_grad():
-        _, _, _, residual_norms, _, _ = model(signals.to(device))
+        _, _, _, residual_norms = model(signals.to(device))
     return residual_norms   # list of floats, length = num_stages
 
 
@@ -204,9 +204,9 @@ print()
 
 # ── Plots ──────────────────────────────────────────────────────────────────────
 save_recon_plot(originals, recons, mse_per_signal,
-                K=K, num_stages=num_stages, trained=trained, path=f"Experiment Logs/SoftAssignment-K256/recon_05.png")
+                K=K, num_stages=num_stages, trained=trained, path=f"Experiment Logs/NS-VQExp16/recon_{arg_runname}.png")
 
 for s, usage in enumerate(usages, start=1):
     stage_label = f"Stage {s}" if num_stages > 1 else "VQ"
     save_codebook_histogram(usage, K=K, stage_label=stage_label,
-                            trained=trained, path=f"Experiment Logs/SoftAssignment-K256/codebook_05_stage_{s}.png")
+                            trained=trained, path=f"Experiment Logs/NS-VQExp16/codebook_{arg_runname}_stage_{s}.png")
