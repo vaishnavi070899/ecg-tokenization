@@ -16,6 +16,7 @@ class VQVAE(nn.Module):
     """
 
     def __init__(self, input_dim=1000, latent_dim=64, num_embeddings=512,
+                 num_embeddings_per_stage=None,
                  commitment_cost=0.25, decay=0.99, buffer_size=2048,
                  num_rvq_stages=1, use_nsvq=False, nsvq_tau_per_stage=None,
                  nsvq_alpha=0.1, nsvq_repulse_gamma=0.05, nsvq_at_risk_thresh=5.0):
@@ -27,6 +28,7 @@ class VQVAE(nn.Module):
             self.quantizer = ResidualVectorQuantizer(
                 num_stages=num_rvq_stages,
                 num_embeddings=num_embeddings,
+                num_embeddings_per_stage=num_embeddings_per_stage,
                 embedding_dim=latent_dim,
                 commitment_cost=commitment_cost,
                 decay=decay,
@@ -142,7 +144,8 @@ class VQVAE(nn.Module):
 
             pool_t = torch.cat(pool, dim=0)                    # (N, D)
             K      = stage.num_embeddings
-            init   = self._kmeans_plus_plus(pool_t, K).to(device)  # (K, D)
+            seeds  = self._kmeans_plus_plus(pool_t, K)        # (K, D) — seeds on CPU
+            init   = self._kmeans_iterate(pool_t, seeds, n_iters=10).to(device)
 
             stage.codebook.copy_(init)
             stage.ema_embedding_sum.copy_(init)
@@ -191,6 +194,51 @@ class VQVAE(nn.Module):
             centers.append(pool[next_idx])
 
         return torch.stack(centers, dim=0)                     # (K, D)
+
+    @staticmethod
+    def _kmeans_iterate(pool, seeds, n_iters=10):
+        """Run Lloyd k-means iterations starting from the given seeds.
+
+        k-means++ gives well-spread seeds but places them at outliers of the
+        distribution (it maximises diversity, not cluster-centroid accuracy).
+        A few Lloyd iterations re-centre each seed on its actual assigned
+        cluster, so the resulting codebook matches the true data distribution
+        rather than its extremes.
+
+        Args:
+            pool:   (N, D) tensor of data vectors (CPU)
+            seeds:  (K, D) tensor of initial centroids from k-means++ (CPU)
+            n_iters: number of Lloyd iterations (10 is enough for warm-start)
+
+        Returns:
+            (K, D) tensor of converged centroids (CPU)
+        """
+        N, D = pool.shape
+        K    = seeds.shape[0]
+        centroids = seeds.clone()                              # (K, D)
+
+        for _ in range(n_iters):
+            # Assignment: each pool vector → nearest centroid  (N,)
+            dists = (
+                pool.pow(2).sum(1, keepdim=True)               # (N, 1)
+                - 2 * pool @ centroids.t()                     # (N, K)
+                + centroids.pow(2).sum(1)                      # (K,)
+            ).clamp(min=0)
+            assign = dists.argmin(dim=1)                       # (N,)
+
+            # Vectorised centroid update via scatter_add (no Python loop over K)
+            counts = torch.zeros(K, dtype=pool.dtype)
+            sums   = torch.zeros(K, D, dtype=pool.dtype)
+            counts.scatter_add_(0, assign, torch.ones(N, dtype=pool.dtype))
+            sums.scatter_add_(0, assign.unsqueeze(1).expand(-1, D), pool)
+
+            # Avoid divide-by-zero; keep old centroid for empty clusters
+            populated  = counts > 0
+            new_c      = centroids.clone()
+            new_c[populated] = sums[populated] / counts[populated].unsqueeze(1)
+            centroids  = new_c
+
+        return centroids                                       # (K, D)
 
     @torch.no_grad()
     def decode_indices(self, indices):

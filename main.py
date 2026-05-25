@@ -41,8 +41,13 @@ print(f"Train: {len(train_dataset)} records  |  Val: {len(val_dataset)} records"
 
 # ── Model ──────────────────────────────────────────────────────────────────────
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+_k_per_stage = (config.NUM_EMBEDDINGS_PER_STAGE
+                if config.NUM_RVQ_STAGES > 1 else None)
+
 model  = VQVAE(input_dim=config.INPUT_DIM, latent_dim=config.LATENT_DIM,
-               num_embeddings=config.NUM_EMBEDDINGS, decay=config.EMA_DECAY,
+               num_embeddings=config.NUM_EMBEDDINGS,
+               num_embeddings_per_stage=_k_per_stage,
+               decay=config.EMA_DECAY,
                buffer_size=config.BUFFER_SIZE,
                num_rvq_stages=config.NUM_RVQ_STAGES,
                use_nsvq=use_nsvq, nsvq_tau_per_stage=nsvq_tau,
@@ -92,10 +97,11 @@ for epoch in range(args.start_epoch, config.EPOCHS + 1):
 
     n = len(train_loader)
     res_str = "  residual=[" + "|".join(f"{v/n:.6f}" for v in total_residuals) + "]"
+    _k_label = str(config.NUM_EMBEDDINGS_PER_STAGE) if config.NUM_RVQ_STAGES > 1 else str(config.NUM_EMBEDDINGS)
     print(f"Epoch {epoch:3d}/{config.EPOCHS}  "
           f"train_recon={total_recon/n:.6f}  "
           f"vq={total_vq/n:.6f}  "
-          f"perplexity={total_perp/n:.1f}/{config.NUM_EMBEDDINGS}"
+          f"perplexity={total_perp/n:.1f}/K={_k_label}"
           f"{res_str}",
           end="")
 

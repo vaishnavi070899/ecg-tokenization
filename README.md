@@ -47,26 +47,58 @@ ecg-vqvae/
 ### VQ-VAE
 
 ```
-ECG signal (1000 samples)
-        |
-   Encoder (Conv1d x 3, stride=2 each)
-        |
-  Latent sequence (125 vectors x 64-dim)
-        |
-  Vector Quantizer (nearest codebook entry per vector)
-        |
-  Discrete tokens (125 integers, each 0 to K-1)
-        |
-   Decoder (ConvTranspose1d x 3, stride=2 each)
-        |
-Reconstructed signal (1000 samples)
+ECG signal  (B, 1000)
+       │
+       ▼
+┌─────────────────────────────────────────────────────┐
+│  Encoder                                            │
+│  Conv1d(1  → 32,  k=4, s=2, p=1)  + ReLU           │  → (B, 32,  500)
+│  Conv1d(32 → 64,  k=4, s=2, p=1)  + ReLU           │  → (B, 64,  250)
+│  Conv1d(64 → 64,  k=4, s=2, p=1)                   │  → (B, 64,  125)
+└─────────────────────────────────────────────────────┘
+       │  z_e  (B, 64, 125)
+       ▼
+┌─────────────────────────────────────────────────────┐
+│  Residual Vector Quantizer  (4 stages)              │
+│                                                     │
+│  Stage 1  K=256   nearest(z_e,   cb₁) → z_q1, i1   │
+│           r₁ = z_e − z_q1                          │
+│  Stage 2  K=256   nearest(r₁,    cb₂) → z_q2, i2   │
+│           r₂ = r₁  − z_q2                          │
+│  Stage 3  K=128   nearest(r₂,    cb₃) → z_q3, i3   │
+│           r₃ = r₂  − z_q3                          │
+│  Stage 4  K= 64   nearest(r₃,    cb₄) → z_q4, i4   │
+│                                                     │
+│  z_q     = z_q1 + z_q2 + z_q3 + z_q4  (B, 64, 125)│
+│  indices = [i1 | i2 | i3 | i4]         (B, 125, 4) │
+└─────────────────────────────────────────────────────┘
+       │  z_q  (B, 64, 125)
+       ▼
+┌─────────────────────────────────────────────────────┐
+│  Decoder                                            │
+│  ConvTranspose1d(64 → 64, k=4, s=2, p=1) + ReLU    │  → (B, 64,  250)
+│  ConvTranspose1d(64 → 32, k=4, s=2, p=1) + ReLU    │  → (B, 32,  500)
+│  ConvTranspose1d(32 →  1, k=4, s=2, p=1)           │  → (B,  1, 1000)
+└─────────────────────────────────────────────────────┘
+       │
+       ▼
+Reconstructed signal  (B, 1000)
 ```
 
-**Encoder:** Three `Conv1d` layers (channels: 1 -> 32 -> 64 -> D), kernel=4, stride=2, padding=1 with ReLUs. Downsamples 8x — a 1000-sample ECG becomes 125 latent vectors, one per ~80ms window.
+**Encoder:** Three `Conv1d` layers (channels: 1 → 32 → 64 → 64), kernel=4, stride=2, padding=1, with ReLU activations after the first two. Downsamples 8× — a 1000-sample ECG (10 s at 100 Hz) becomes 125 latent vectors, each representing an ~80 ms window.
 
-**Decoder:** Mirror of encoder using `ConvTranspose1d` layers (D -> 64 -> 32 -> 1). Upsamples 8x back to 1000 samples.
+**Residual Vector Quantizer (RVQ):** Four sequential VQ stages with stage-specific codebook sizes [256, 256, 128, 64]. Each stage quantizes the residual left by all previous stages using nearest-neighbour lookup (hard argmin). The final quantized representation is the sum of all four stage outputs; decoding requires only four codebook lookups and a sum.
 
-**Quantizer:** EMA-based codebook updates (no gradient through codebook). Straight-through estimator for encoder gradient flow. Returns commitment loss and perplexity each step. Includes a circular encoder output buffer (size 2048) for codebook reset strategies.
+Per stage:
+- **EMA codebook updates:** codebook vectors are updated via exponential moving average (γ = 0.95) rather than gradient descent — no codebook gradient required.
+- **Straight-through estimator:** gradients flow through the quantization bottleneck to the encoder unchanged.
+- **Commitment loss:** β · ‖z_e − sg(z_q)‖² keeps encoder outputs anchored to codebook entries (β = 0.25).
+- **K-Means Centroid Reset:** a circular buffer (size 2048) of recent encoder outputs is maintained; dead codes (EMA count < 1.0) are reset to k-means centroids computed over the buffer.
+- **NS-VQ kernel update:** at-risk codes (EMA count < 5.0) are attracted toward active regions via a weighted RBF kernel, then repelled from dense local neighbourhoods using an adaptive bandwidth derived from the median nearest-neighbour distance (see Experiment 10).
+
+**Warm-start initialization:** Before the first training epoch, each stage's codebook is initialized from its true residual distribution using sequential k-means++ seeding followed by 10 Lloyd iterations. Stage *s* uses residuals produced by already-initialized stages 0…*s*−1, ensuring correct scale alignment from the first batch.
+
+**Decoder:** Mirror of the encoder using three `ConvTranspose1d` layers (channels: 64 → 64 → 32 → 1), kernel=4, stride=2, padding=1, with ReLU after the first two. Upsamples 8× back to 1000 samples.
 
 ### Prior
 
@@ -80,17 +112,22 @@ All hyperparameters live in `config.py`. Edit once — every script picks it up 
 
 | Parameter | Value | Description |
 |---|---|---|
-| `INPUT_DIM` | 1000 | ECG length (10s @ 100Hz) |
+| `INPUT_DIM` | 1000 | ECG length (10 s at 100 Hz) |
 | `LATENT_DIM` | 64 | Codebook vector dimension D |
-| `NUM_EMBEDDINGS` | 512 | Codebook size K |
+| `NUM_EMBEDDINGS` | 256 | Codebook size K for single-stage VQ |
+| `NUM_EMBEDDINGS_PER_STAGE` | [256, 256, 128, 64] | Per-stage codebook sizes for RVQ |
+| `NUM_RVQ_STAGES` | 4 | Number of RVQ stages (1 = standard VQ) |
 | `SEQ_LEN` | 125 | Latent time steps (INPUT_DIM // 8) |
 | `EMA_DECAY` | 0.95 | Codebook EMA decay γ |
 | `COMMITMENT_COST` | 0.25 | Commitment loss weight β |
 | `BUFFER_SIZE` | 2048 | Circular buffer size for K-Means Centroid Reset |
-| `BATCH_SIZE` | 16 | VQ-VAE training batch size |
+| `BATCH_SIZE` | 32 | VQ-VAE training batch size |
 | `EPOCHS` | 30 | VQ-VAE training epochs |
 | `LR` | 1e-3 | Adam learning rate |
-| `N_RECORDS` | 5000 | Records per split (None = full ~21k) |
+| `N_RECORDS` | 2000 | Records per split (None = full ~21k) |
+| `NSVQ_ALPHA` | 0.1 | NS-VQ attraction step size |
+| `NSVQ_REPULSE_GAMMA` | 0.05 | NS-VQ repulsion step size |
+| `NSVQ_AT_RISK_THRESH` | 5.0 | EMA usage threshold for NS-VQ updates |
 | `D_MODEL` | 128 | Prior Transformer width |
 | `N_HEADS` | 4 | Prior attention heads |
 | `N_LAYERS` | 4 | Prior Transformer layers |
@@ -307,7 +344,7 @@ total_loss = MSE(x_recon, x) + β * ||z_e - sg(z_q)||^2 + λ * entropy_loss
 
 ### Experiment 4 — Effect of EMA Decay Rate (γ) on Codebook Utilization
 
-**Settings:** K=512, K-Means Centroid Reset, EPOCHS=20, N_RECORDS=1000. γ varied across {0.90, 0.95, 0.99}.
+**Settings:** K=512, K-Means Centroid Reset, EPOCHS=20, N_RECORDS=1000.
 
 | γ | Mean MSE | Perplexity | Active Codes | Dead Codes | Utilization |
 |---|---|---|---|---|---|
@@ -315,183 +352,123 @@ total_loss = MSE(x_recon, x) + β * ||z_e - sg(z_q)||^2 + λ * entropy_loss
 | 0.95 | 0.0500 | 355.0 | 375 / 512 | 26.8% | 73.2% |
 | 0.99 | 0.0595 | 404.1 | 390 / 512 | 23.8% | 76.2% |
 
-**Training dynamics:**
-
-| γ | Early (Epochs 1–5) | Mid (5–15) | Late (15–20) |
-|---|---|---|---|
-| 0.90 | Rapid perplexity spike (~374 by epoch 3), aggressive adaptation | Steady decline, unstable assignments | Continues drifting, noisy usage |
-| 0.95 | Fast coverage gain (~395 by epoch 4), strong early spread | Gradual controlled decline | Smooth convergence, stable usage |
-| 0.99 | Slow monotonic rise (94 → 406) | Continues gradual growth | Plateaus ~404, minimal fluctuation |
-
-**Finding:** γ=0.95 achieves the best balance — lowest MSE (0.0500) with stable codebook dynamics. γ=0.90 adapts fastest and overshoots, producing fluctuating assignments and exaggerated QRS peaks. γ=0.99 yields highest perplexity and utilization but slower specialization, resulting in slightly blurred reconstructions. All three settings exhibit a persistent long-tail usage distribution, confirming that EMA tuning moderates collapse severity but does not eliminate it. EMA decay controls the adaptation speed vs. stability tradeoff; it is not a solution to collapse on its own.
+**Finding:** γ=0.95 achieves the best balance — lowest MSE (0.0500) with stable dynamics. γ=0.90 adapts fastest but overshoots, producing fluctuating assignments; γ=0.99 yields the highest utilization but slower specialization and slightly blurred reconstructions. All three settings show a persistent long-tail usage distribution — EMA tuning moderates collapse severity but does not eliminate it.
 
 ### Experiment 5 — Data Scaling (1K → 2K → 5K → 10K)
 
-**Objective:** Determine whether the codebook collapse observed in Experiment 1 was caused by insufficient training data rather than architectural or hyperparameter limitations.
+**Settings:** K=512, EMA_DECAY=0.95, K-Means Centroid Reset. Epoch budget scaled with dataset size.
 
-**Hypothesis:** Training on progressively larger subsets of PTB-XL will naturally increase active code count and improve reconstruction, as the model encounters more diverse signal patterns — even without architectural changes.
+| N (train) | Best Val Recon | Mean MSE | Perplexity | Active Codes | Dead Codes |
+|---|---|---|---|---|---|
+| 1K | 0.0447 | 0.0500 | 355.0 | 375 / 512 | 26.8% |
+| 2K | 0.0356 | 0.0415 | 291.0 | 363 / 512 | 29.1% |
+| 5K | 0.0319 | 0.0376 | 334.0 | 401 / 512 | 21.7% |
+| 10K | 0.0309 | 0.0354 | 324.5 | 398 / 512 | 22.3% |
 
-**Settings:** K=512, EMA_DECAY=0.95, β=0.25, K-Means Centroid Reset, Adam (LR=1e-3), batch size=32, lead I, z-score normalised. Epoch budget scaled with dataset size.
-
-#### 5.1 Summary
-
-| N (train) | Epochs | Best Val Recon | Mean MSE | Perplexity | Active Codes | Dead Codes | Stability |
-|---|---|---|---|---|---|---|---|
-| 1K | 20 | 0.0447 | 0.0500 | 355.0 | 375 / 512 | 26.8% | Stable |
-| 2K | 25 | 0.0356 | 0.0415 | 291.0 | 363 / 512 | 29.1% | Very stable |
-| 5K | 30 | 0.0319 | 0.0376 | 334.0 | 401 / 512 | 21.7% | Stable, mild late noise |
-| 10K | 30 | 0.0309 | 0.0354 | 324.5 | 398 / 512 | 22.3% | Slightly noisy |
-
-#### 5.2 Training Dynamics
-
-| N (train) | Convergence Epoch | Final Norm. Perplexity | Dead Codes | Stability |
-|---|---|---|---|---|
-| 1K | ~17–20 | ~0.69 | 26.8% | Stable |
-| 2K | ~20–25 | ~0.65 | 29.1% | Very stable |
-| 5K | ~13–17 | ~0.69 | 21.7% | Stable (late noise) |
-| 10K | ~15–20 | ~0.70 | 22.3% | Slightly noisy |
-
-#### 5.3 Observations
-
-**1. Reconstruction performance** improves monotonically with dataset size. Best val recon fell from 0.0447 (1K) to 0.0309 (10K) — a 31% reduction. Gains are largest from 1K → 2K and diminish at higher scales, consistent with diminishing returns.
-
-**2. Convergence speed** increases with dataset size. The 1K run needed ~20 epochs to plateau; 5K and 10K converged by ~13–20 epochs. Larger datasets provide more diverse examples per epoch, enabling the model to learn structure more efficiently per pass.
-
-**3. Training stability** is high across all runs. Reconstruction loss decreased smoothly, with train and val curves closely aligned throughout, indicating no overfitting. Minor fluctuations appeared in later epochs for 5K and 10K, reflecting convergence plateaus rather than instability.
-
-**4. Codebook utilisation** remained largely unchanged. Normalised perplexity stayed in the narrow range ~0.65–0.70 across all dataset sizes, and dead-code rates held at ~22–29%. Scaling data alone did not meaningfully reduce collapse — the active-code ceiling appears to be set by training dynamics and the reconstruction objective, not by data diversity.
-
-**5. VQ loss** followed a consistent pattern across all runs: rose during early epochs as the encoder adapted to the discrete bottleneck, then stabilised. No divergence or instability was observed in the quantisation process at any scale.
-
-**Key takeaway:** Scaling the dataset improves reconstruction quality and learning efficiency without compromising stability. However, codebook collapse is not resolved by more data — dead-code rates are nearly identical at 1K and 10K. This confirms the conclusion from Experiments 1–4: collapse is a training-dynamics problem driven by the reconstruction objective's indifference to code diversity, and will require changes to the quantisation mechanism (e.g. entropy regularisation, diversity-aware loss terms) rather than additional data.
+**Finding:** Reconstruction improves monotonically with data (−31% val recon, 1K → 10K) and larger datasets converge faster, but codebook collapse is unaffected. Dead-code rates held at ~22–29% across all sizes. Collapse is a training-dynamics problem driven by the reconstruction objective's indifference to code diversity — more data cannot fix it.
 
 ---
 
 ### Experiment 6 — Residual Vector Quantization (1 → 2 → 3 → 4 stages)
 
-**Objective:** Determine whether stacking multiple VQ layers — each quantizing the residual of the previous — resolves codebook collapse and produces a richer, more diverse token vocabulary than a single codebook.
-
-**Hypothesis:** RVQ will increase effective vocabulary size by distributing the representational burden across multiple codebook layers, preventing any single codebook from collapsing. Each layer will capture progressively finer-grained structure left unrepresented by the previous one.
-
-**Settings:** K=512, EMA_DECAY=0.95, β=0.25, K-Means Centroid Reset, Adam (LR=1e-3), batch size=32, 1K records, 20 epochs, lead I, z-score normalised.
-
-#### 6.1 Per-Stage Results (K=512)
-
-| Config | Stage | Residual MSE | Δ Residual (%) | Mean MSE | Active Codes | Dead Codes | Perplexity |
-|---|---|---|---|---|---|---|---|
-| VQ-VAE (1 stage) | — | 0.167516 | — | 0.0526 | 377 / 512 | 135 (26.4%) | 309.4 |
-| RVQ – 2 layer | 1 | 0.076229 | — | — | 375 / 512 | 137 (26.8%) | 304.4 |
-| RVQ – 2 layer | 2 | 0.029856 | −60.8% | 0.0194 | 368 / 512 | 144 (28.1%) | 305.2 |
-| RVQ – 3 layer | 1 | 0.045625 | — | — | 378 / 512 | 134 (26.2%) | 308.0 |
-| RVQ – 3 layer | 2 | 0.018991 | −58.4% | — | 361 / 512 | 151 (29.5%) | 297.6 |
-| RVQ – 3 layer | 3 | 0.010240 | −46.1% | 0.0099 | 395 / 512 | 117 (22.9%) | 327.3 |
-| RVQ – 4 layer | 1 | 0.033526 | — | — | 349 / 512 | 163 (31.8%) | 277.1 |
-| RVQ – 4 layer | 2 | 0.014834 | −55.8% | — | 357 / 512 | 155 (30.3%) | 291.7 |
-| RVQ – 4 layer | 3 | 0.008198 | −44.7% | — | 387 / 512 | 125 (24.4%) | 318.5 |
-| RVQ – 4 layer | 4 | 0.005025 | −38.7% | 0.0063 | 398 / 512 | 114 (22.3%) | 332.9 |
-
-#### 6.2 Reconstruction Quality Summary
-
-| Config | Best Val Recon | Mean MSE |
-|---|---|---|
-| VQ-VAE (1 stage) | 0.0464 | 0.0526 |
-| RVQ – 2 layer | 0.0172 | 0.0194 |
-| RVQ – 3 layer | 0.0092 | 0.0099 |
-| RVQ – 4 layer | 0.0061 | 0.0063 |
-
-Each additional stage yields a ~2–2.5× improvement in MSE. The 1→2 layer jump is the most dramatic (val MSE drops 63%). Beyond 3 layers, gains narrow.
-
-#### 6.3 Codebook Size Sweep (4-layer RVQ, K ∈ {128, 256, 512})
+**Settings:** K=512, EMA_DECAY=0.95, K-Means Centroid Reset, EPOCHS=20, N_RECORDS=1K.
 
 | Config | Best Val Recon | Mean MSE | Avg Dead Codes |
 |---|---|---|---|
-| K=512, 4 layer | 0.0061 | 0.0063 | ~27% |
-| K=256, 4 layer | 0.0074 | 0.0083 | ~16% |
-| K=128, 4 layer | 0.0103 | 0.0115 | ~6% |
+| VQ-VAE (1 stage) | 0.0464 | 0.0526 | ~26% |
+| RVQ – 2 stage | 0.0172 | 0.0194 | ~27% |
+| RVQ – 3 stage | 0.0092 | 0.0099 | ~26% |
+| RVQ – 4 stage | 0.0061 | 0.0063 | ~27% |
 
-**K=256 per-stage breakdown:**
+**K sweep (4-stage RVQ):**
 
-| Stage | Residual MSE | Δ Residual (%) | Active Codes | Dead Codes | Perplexity |
-|---|---|---|---|---|---|
-| 1 | 0.043415 | — | 214 / 256 | 42 (16.4%) | 155.5 |
-| 2 | 0.019867 | −54.2% | 210 / 256 | 46 (18.0%) | 152.4 |
-| 3 | 0.011128 | −44.0% | 211 / 256 | 45 (17.6%) | 165.0 |
-| 4 | 0.006922 | −37.8% | 226 / 256 | 30 (11.7%) | 177.9 |
+| K | Best Val Recon | Mean MSE | Avg Dead Codes |
+|---|---|---|---|
+| 128 | 0.0103 | 0.0115 | ~6% |
+| 256 | 0.0074 | 0.0083 | ~16% |
+| 512 | 0.0061 | 0.0063 | ~27% |
 
-#### 6.4 Observations
-
-**1. Reconstruction quality** improves monotonically with depth. Val recon drops from 0.046 (1 stage) → 0.017 (2 stages) → 0.009 (3 stages) → 0.006 (4 stages), roughly halving with each additional stage. This confirms RVQ's core premise: each stage captures what the prior stage missed.
-
-**2. Residual compression efficiency degrades with depth.** Stage 1 always captures the largest share of variance. By Stage 4, the per-stage residual gain (0.005) is modest compared to Stage 1 (0.034–0.168). The Δ residual also shrinks monotonically (~55–60% at Stage 2 → ~39% at Stage 4), indicating diminishing returns. 3–4 stages is likely the practical ceiling for this signal complexity.
-
-**3. Dead codes are persistent and depth-independent.** All K=512 configs show ~22–32% dead codes regardless of stage count. This is a codebook utilisation ceiling that RVQ alone cannot solve — it points to a fundamental clustering mismatch between K=512 and the intrinsic cluster structure of the ECG signal, not a training instability.
-
-**4. Perplexity declines with more stages (K=512).** Stage 1 perplexity peaks at ~380–400 for shallow configs, but the overall perplexity falls as depth increases (309 → 277 for 4-layer). Deeper models spread variance across stages, so no single codebook fills as efficiently — Stage 1 is tasked with a harder, more compressed residual distribution.
-
-**5. Codebook size interacts with depth.** K=128 nearly eliminates dead codes (~6%) but caps expressiveness — Mean MSE is 0.0115 vs. 0.0063 for K=512. K=256 is the best tradeoff: ~12–18% dead codes and Mean MSE of 0.0083. This reveals that ~110–120 codes is approximately the natural granularity per RVQ stage for this encoder — K=512 is asking the model to partition a space that supports far fewer separable clusters.
-
-**6. Training dynamics** were stable across all configs. All runs showed fast initial descent (epochs 1–5) followed by monotonic improvement. No divergence or instability was observed at any depth.
-
-**Key takeaway:** 3-layer RVQ offers the best MSE-per-stage efficiency. 4 layers is worthwhile if compute allows, but the marginal gain (0.009 → 0.006 MSE) should be weighed against the persistent dead code problem. The dead code issue is unresolved across all RVQ depths and codebook sizes — it warrants a dedicated intervention (entropy regularisation, usage penalty, or diversity-aware loss) before scaling further. Reducing K is not a full substitute: it forces utilisation but caps capacity. These are complementary approaches.
+**Finding:** Each additional RVQ stage roughly halves MSE — the 1→2 stage jump is the largest (−63%). Dead codes persist at ~22–32% regardless of stage count, confirming RVQ alone cannot resolve collapse. K=256 is the best tradeoff: ~16% dead codes and MSE 0.0083 vs. K=512's 0.0063 with 27% dead. The natural active-code ceiling is ~110–120 per stage, making K=512 oversized by ~4×.
 
 ---
 
-### Experiment 7 — Introducing an Entropy Regularization Loss Term
+### Experiment 7 — Entropy Regularization
 
-**Objective:** Determine whether adding a differentiable entropy regularization term to the training loss encourages more uniform codebook usage and reduces dead codes.
-
-**Hypothesis:** Penalizing low-entropy code usage distributions will push the encoder to spread representations more evenly across the codebook, reducing collapse without requiring explicit dead code detection or reset.
-
-**Method:** A soft entropy loss is computed each forward pass using softmax over encoder-to-codebook distances (differentiable, unlike the hard argmin used for quantization). Minimizing the negative entropy of the resulting soft assignment distribution encourages the encoder to produce representations that are more uniformly spread across codebook entries. Gradients flow only through the encoder — the codebook buffer is detached to avoid conflicts with the EMA in-place update.
-
-```
-entropy_loss = Σ avg_soft_probs * log(avg_soft_probs + ε)   (≤ 0; minimizing maximizes entropy)
-total_loss   = MSE(x_recon, x) + β·commitment_loss + λ·entropy_loss
-```
-
-For RVQ, the entropy loss is summed across all stages.
-
-**Settings:** K=512, 4-layer RVQ, EMA_DECAY=0.95, β=0.25, K-Means Centroid Reset active, Adam (LR=1e-3), batch size=32, 1K records, 15 epochs, lead I, z-score normalised. λ varied across {0.01, 0.1}.
-
-#### 7.1 Results
+**Settings:** K=512, 4-layer RVQ, EMA_DECAY=0.95, K-Means Centroid Reset, EPOCHS=15, N_RECORDS=1K. λ varied across {0.01, 0.1}.
 
 | λ | Best Val Recon | Peak Perplexity | Active Codes (Stage 1) | Dead Codes (Stage 1) |
 |---|---|---|---|---|
-| 0 (baseline, Exp 6) | 0.0061 | 333 / 512 | 398 / 512 | 22.3% |
+| 0 (baseline) | 0.0061 | 333 / 512 | 398 / 512 | 22.3% |
 | 0.01 | 0.009256 | ~374 / 512 | 353 / 512 | 31.1% |
 | 0.1 | 0.012255 | ~378 / 512 | 364 / 512 | 28.9% |
 
-#### 7.2 Training Dynamics
+**Finding:** Entropy regularization did not improve codebook utilization and degraded reconstruction. λ=0.1 destabilizes training — the entropy term (~24 nats across 4 stages) overwhelms the loss by mid-training, inflating VQ loss from 0.007 to 0.068. λ=0.01 is stable but marginal, and active codes actually decrease vs. baseline. Root cause: entropy acts on soft (differentiable) assignments while EMA updates use hard argmin — a dead code that never wins a hard assignment cannot be revived by encoder gradients alone.
 
-**λ = 0.01**
+---
 
-| Epoch | train_recon | vq_loss | entropy | perplexity |
-|---|---|---|---|---|
-| 1 | 0.5419 | 0.0059 | −24.62 | 187.0 / 512 |
-| 5 | 0.0198 | 0.0080 | −24.46 | 373.6 / 512 |
-| 10 | 0.0114 | 0.0119 | −24.30 | 360.3 / 512 |
-| 14 | 0.0095 | 0.0132 | −24.19 | 348.5 / 512 |
+### Experiment 8 — Usage Penalty / Frequency Balancing
 
-**λ = 0.1**
+**Settings:** 4-layer RVQ, K=512, EMA_DECAY=0.95, K-Means Centroid Reset, EPOCHS=20, N_RECORDS=1K. α varied across {0.01, 0.1, 0.5, 1.0}.
 
-| Epoch | train_recon | vq_loss | entropy | perplexity |
-|---|---|---|---|---|
-| 1 | 0.4378 | 0.0066 | −24.58 | 188.4 / 512 |
-| 5 | 0.0218 | 0.0153 | −24.49 | 382.5 / 512 |
-| 10 | 0.0149 | 0.0378 | −24.16 | 376.1 / 512 |
-| 14 | 0.0129 | 0.0606 | −23.96 | 370.9 / 512 |
+| α | Mean MSE | S1 Dead | S2 Dead | S3 Dead | S4 Dead |
+|---|---|---|---|---|---|
+| 0.01 | 0.0066 | 29.9% | 27.7% | 26.2% | 24.2% |
+| 0.1 | 0.0089 | 28.1% | 26.4% | 24.8% | 21.9% |
+| 0.5 | 0.0065 | 29.5% | 29.9% | 24.4% | 25.0% |
+| 1.0 | 0.0067 | 31.1% | 27.3% | 23.0% | 21.5% |
 
-#### 7.3 Observations
+**Finding:** Usage penalties produced small, inconsistent improvements in utilization (dead codes 21–31%, within the same range as the reset-only baseline from Exp 6). Reconstruction remained stable across all α (MSE 0.0065–0.0089), but increasing α beyond 0.1 gave no measurable gain — Stage 4 active codes for α=0.1 and α=1.0 differ by only two codes. Penalties redistribute assignments among already-active codes rather than reviving dead ones; K-Means Centroid Reset remains the primary driver of utilization maintenance.
 
-**1. No meaningful improvement in codebook utilisation.** Both λ settings produce active code counts and perplexity values within the same range as the Experiment 6 baseline (Exp 6: 398 active codes; Exp 7: 353–364). The entropy regularization did not reduce dead codes relative to the reset-only baseline.
+---
 
-**2. λ = 0.1 destabilises training.** The entropy loss magnitude is approximately 24 (4 stages × ~6 nats each). At λ = 0.1, the entropy term contributes ~2.4 to the total loss — roughly 100× larger than the reconstruction loss by mid-training. This overwhelms the commitment loss: VQ loss climbs monotonically from 0.007 to 0.068, residual norms grow significantly across all stages, and reconstruction quality degrades relative to baseline.
+### Experiment 9 — Temperature / Soft Assignments
 
-**3. λ = 0.01 is stable but marginal.** Entropy improves slowly (−24.62 → −24.19) and perplexity rises initially before declining, suggesting the signal is too weak to overcome the training dynamics that drive collapse. Reconstruction quality is slightly worse than the reset-only baseline (0.009 vs 0.006).
+**Settings:** 4-layer RVQ, K=512, EMA_DECAY=0.95, K-Means Centroid Reset, EPOCHS=20, N_RECORDS=1K. Temperature T varied across {0.1, 0.5, 1.0, 2.0}.
 
-**4. The mechanism mismatch.** Entropy regularization acts on the encoder via soft (differentiable) assignments, but codebook updates use hard argmin assignments. A dead code that never wins a hard assignment receives no EMA update regardless of its soft probability — the encoder gradient cannot revive it. The K-Means Centroid Reset directly targets this failure mode; entropy loss cannot.
+| T | Mean MSE | S1 Dead | S2 Dead | S3 Dead | S4 Dead |
+|---|---|---|---|---|---|
+| 0.1 | 0.0568 | 22.9% | 86.3% | 91.0% | 94.9% |
+| 0.5 | 0.0559 | 25.2% | 88.3% | 89.1% | 94.5% |
+| 1.0 | 0.0656 | 36.3% | 21.1% | 20.5% | 20.3% |
+| 2.0 | 0.0758 | 45.5% | 21.1% | 20.5% | 20.3% |
 
-**Key takeaway:** No noticeable improvement was observed with entropy regularization. The approach is theoretically motivated but practically ineffective in this setting — it is a preventive regularizer operating on a different assignment geometry than the EMA update that drives collapse. The K-Means Centroid Reset remains the primary mechanism. Entropy regularization may offer marginal benefit as an early-training stabilizer but does not reduce dead codes or improve reconstruction relative to the reset-only baseline.
+**Finding:** No temperature outperformed the hard-assignment baseline. Low temperatures (T=0.1, 0.5) maintained Stage 1 utilization but caused catastrophic collapse in later stages (Stages 2–4: 86–95% dead), degrading MSE to ~0.056. High temperatures (T=1.0, 2.0) spread assignments across later stages but collapsed Stage 1 (36–46% dead) and degraded MSE to 0.066–0.076. Soft assignments weaken the competitive pressure needed for codebook specialization; an earlier implementation at T=1.0 collapsed to a single active code (perplexity=1, MSE≈1.0). Hard nearest-neighbor assignment with K-Means Centroid Reset remained the most stable configuration.
+
+---
+
+> **Note:** Experiments 7–9 (entropy regularization, usage penalties, and soft assignment temperature) were all ultimately removed from the final model. None produced a meaningful reduction in dead codes relative to the K-Means Centroid Reset baseline, and two of the three degraded reconstruction quality. The final architecture retains hard nearest-neighbor assignments, EMA codebook updates, and K-Means Centroid Reset only.
+
+---
+
+### Experiment 10 — NS-VQ + Warm-Start + Adaptive K Scaling
+
+**Settings:** 4-stage RVQ, EMA_DECAY=0.95, 2000 records, 30 epochs. NS-VQ Run B (τ=[2.01,1.13,0.71,0.49]): at-risk codes (EMA usage < 5.0) attracted toward active regions via RBF kernel (α=0.1) with adaptive repulsion. Sequential k-means++ warm-start + 10 Lloyd iterations per stage.
+
+| Configuration | K per Stage | MSE | S1 Dead | S2 Dead | S3 Dead | S4 Dead |
+|---|---|---|---|---|---|---|
+| Baseline | [256,256,256,256] | 0.0057 | 16.4% | 22.3% | 18.8% | 14.8% |
+| NS-VQ Run A (tight τ) | [256,256,256,256] | 0.0087 | 8.2% | 20.7% | 18.4% | 15.6% |
+| NS-VQ Run B (moderate τ) | [256,256,256,256] | 0.0081 | 10.9% | 19.5% | 18.4% | 16.4% |
+| NS-VQ Run C (broad τ) | [256,256,256,256] | 0.0085 | 10.9% | 18.8% | 15.6% | 15.6% |
+| NS-VQ Run D (empirical τ) | [256,256,256,256] | 0.0092 | 9.0% | 14.5% | 15.6% | 13.3% |
+| + Warm-Start | [256,256,256,256] | 0.0079 | 11.3% | 16.4% | 15.2% | 12.9% |
+| K=[512,256,128,64] | [512,256,128,64] | 0.0092 | 22.3% | 16.8% | 9.4% | 1.6% |
+| + Lloyd warm-start | [512,256,128,64] | 0.0074 | 25.8% | 19.1% | 8.6% | 0.0% |
+| K=[256,256,128,64] (1k rec) | [256,256,128,64] | 0.0080 | 9.8% | 21.5% | 7.0% | 1.6% |
+| **Full Stack (2k rec)** | **[256,256,128,64]** | **0.0058** | **16.0%** | **22.3%** | **13.3%** | **1.6%** |
+
+**Warm-start initialization (Full Stack run):**
+
+| Stage | Residual norm mean | Residual norm std | Codebook norm mean |
+|---|---|---|---|
+| 1 | 0.8426 | 0.4443 | 1.2131 |
+| 2 | 0.1977 | 0.1280 | 0.2890 |
+| 3 | 0.1499 | 0.0956 | 0.2418 |
+| 4 | 0.1335 | 0.0823 | 0.1420 |
+
+Default `U(−1/K, 1/K)` init gives codebook norms of ~0.018 — 50× smaller than Stage 1 residuals (0.84). Warm-start reduces this mismatch; the remaining ~1.2–1.4× overshoot is corrected by EMA in the first few epochs.
+
+**Finding:** NS-VQ improved Stage 1 utilization (dead codes 16.4% → 8–11%) but introduced training instability, keeping MSE above baseline (0.0081–0.0092 vs. 0.0057). Warm-start had a larger effect than online redistribution — initialization geometry dominates long-term utilization dynamics. Stage-specific K scaling [256,256,128,64] matched codebook capacity to residual complexity, recovering baseline MSE (0.0058) with 31% fewer total codes (704 vs. 1024). Stage 2 dead codes (~22%) are structural and unaffected by any intervention, reflecting the lower intrinsic dimensionality of Stage 1's error patterns.
 
 ---
 
@@ -500,3 +477,5 @@ For RVQ, the entropy loss is summed across all stages.
 - van den Oord et al. (2017) — [Neural Discrete Representation Learning (VQ-VAE)](https://arxiv.org/abs/1711.00937)
 - Wagner et al. (2020) — [PTB-XL, a large publicly available ECG dataset](https://www.nature.com/articles/s41597-020-0495-6)
 - PhysioNet — [PTB-XL Dataset](https://physionet.org/content/ptb-xl/1.0.3/)
+- Lu et al. (2026) — [Beyond Stationarity: Rethinking Codebook Collapse in Vector Quantization](https://arxiv.org/abs/2602.18896) — Identifies non-stationary encoder updates as the root cause of codebook collapse and proposes NS-VQ and TransVQ to achieve near-complete codebook utilization; basis for the NS-VQ update rule used in Experiment 10.
+- Zheng et al. (2024) — [ERVQ: Enhanced Residual Vector Quantization with Intra-and-Inter-Codebook Optimization for Neural Audio Codecs](https://arxiv.org/abs/2410.12359) — Introduces intra- and inter-codebook optimization strategies to address collapse in RVQ-based neural audio codecs; motivation for the inter-stage projection architecture discussed as a future direction in Experiment 10.

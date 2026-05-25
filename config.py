@@ -15,7 +15,8 @@ LEAD           = 0      # lead index (0 = lead I)
 
 # ── VQ-VAE architecture ────────────────────────────────────────────────────────
 LATENT_DIM      = 64   # encoder output channels = codebook vector dimension D
-NUM_EMBEDDINGS  = 256   # codebook size K (per RVQ stage)
+NUM_EMBEDDINGS           = 256              # codebook size K for single-stage VQ
+NUM_EMBEDDINGS_PER_STAGE = [256, 256, 128, 64]  # per-stage K for RVQ (index = stage - 1)
 NUM_RVQ_STAGES  = 4    # RVQ stages: 1 = standard single-stage VQ, 2+ = residual VQ
 SEQ_LEN         = INPUT_DIM // 8   # 125 — latent time steps after 8x downsampling
 
@@ -24,9 +25,9 @@ EMA_DECAY        = 0.95   # EMA decay γ for codebook updates
 COMMITMENT_COST  = 0.25   # β — weight on commitment loss
 BUFFER_SIZE      = 2048   # circular buffer size for K-Means Centroid Reset (Strategy 2)
 BATCH_SIZE       = 32
-EPOCHS           = 20
+EPOCHS           = 30
 LR               = 1e-3
-N_RECORDS        = 1000   # cap per split for quick runs; set to None for full ~21k dataset
+N_RECORDS        = 2000   # cap per split for quick runs; set to None for full ~21k dataset
 
 # ── NS-VQ (Non-Stationary Vector Quantization) ────────────────────────────────
 NSVQ_ALPHA  = 0.1    # kernel update step size for non-selected codes

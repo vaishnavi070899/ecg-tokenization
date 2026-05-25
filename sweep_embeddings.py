@@ -31,8 +31,11 @@ arg_runname = "B"   # used in plot filenames; should match the --nsvq-run value 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 def load_model(device):
     ckpt  = f"vqvae_best_run{arg_runname}.pt"
+    _k_per_stage = (config.NUM_EMBEDDINGS_PER_STAGE
+                    if config.NUM_RVQ_STAGES > 1 else None)
     model = VQVAE(input_dim=config.INPUT_DIM, latent_dim=config.LATENT_DIM,
                   num_embeddings=config.NUM_EMBEDDINGS,
+                  num_embeddings_per_stage=_k_per_stage,
                   num_rvq_stages=config.NUM_RVQ_STAGES)
     if os.path.exists(ckpt):
         model.load_state_dict(torch.load(ckpt, map_location=device))
@@ -77,22 +80,24 @@ def _usage_from_flat(flat, num_embeddings):
                 dead_pct=dead_pct, perplexity=perplexity, total=total)
 
 
-def compute_codebook_usage(model, signals, device, num_embeddings):
+def compute_codebook_usage(model, signals, device, k_per_stage):
     """Return a list of usage-stat dicts, one per VQ stage.
 
     Single-stage VQ : indices (N, T)      → list of length 1
     RVQ (S stages)  : indices (N, T, S)   → list of length S
+
+    k_per_stage: list of ints, one K value per stage.
     """
     with torch.no_grad():
         indices = model.encode_indices(signals.to(device))
 
     if indices.dim() == 3:                                    # RVQ
         return [
-            _usage_from_flat(indices[:, :, s].cpu().numpy().flatten(), num_embeddings)
+            _usage_from_flat(indices[:, :, s].cpu().numpy().flatten(), k_per_stage[s])
             for s in range(indices.shape[2])
         ]
     else:                                                     # single VQ
-        return [_usage_from_flat(indices.cpu().numpy().flatten(), num_embeddings)]
+        return [_usage_from_flat(indices.cpu().numpy().flatten(), k_per_stage[0])]
 
 
 # ── Plots ──────────────────────────────────────────────────────────────────────
@@ -176,11 +181,14 @@ dataset = PTBXLDataset(folds=[10], n_records=N_RECORDS)
 signals = torch.stack([dataset[i] for i in range(N_RECORDS)])
 
 num_stages = config.NUM_RVQ_STAGES
+k_per_stage = (config.NUM_EMBEDDINGS_PER_STAGE if num_stages > 1
+               else [config.NUM_EMBEDDINGS])
+k_label = str(k_per_stage) if num_stages > 1 else str(k_per_stage[0])
+
 print(f"\nDevice: {device}   |   Val records: {N_RECORDS}   |   "
-      f"K={config.NUM_EMBEDDINGS}   |   RVQ stages={num_stages}\n")
+      f"K={k_label}   |   RVQ stages={num_stages}\n")
 
 model, trained = load_model(device)
-K = config.NUM_EMBEDDINGS
 
 # Reconstruction MSE
 originals, recons = compute_mse(model, signals, device)
@@ -190,23 +198,26 @@ mse_per_signal    = ((originals - recons) ** 2).mean(axis=1)
 residual_norms = compute_residual_norms(model, signals, device)
 
 # Codebook usage (one dict per stage)
-usages = compute_codebook_usage(model, signals, device, K)
+usages = compute_codebook_usage(model, signals, device, k_per_stage)
 
 # ── Console log ────────────────────────────────────────────────────────────────
 print(f"Mean MSE     : {mse_per_signal.mean():.4f}")
 print()
 for s, (norm, usage) in enumerate(zip(residual_norms, usages), start=1):
     label = f"Stage {s}" if num_stages > 1 else "VQ"
-    print(f"[{label}]  Residual MSE : {norm:.6f}  |  "
-          f"Active codes : {usage['used_codes']}/{K}  |  "
+    K_s   = k_per_stage[s - 1]
+    print(f"[{label}]  K={K_s:3d}  Residual MSE : {norm:.6f}  |  "
+          f"Active codes : {usage['used_codes']}/{K_s}  |  "
           f"Dead codes : {usage['dead_codes']}  ({usage['dead_pct']:.1f}%)")
 print()
 
 # ── Plots ──────────────────────────────────────────────────────────────────────
 save_recon_plot(originals, recons, mse_per_signal,
-                K=K, num_stages=num_stages, trained=trained, path=f"Experiment Logs/NS-VQExp16/recon_{arg_runname}.png")
+                K=k_label, num_stages=num_stages, trained=trained,
+                path=f"Experiment Logs/NS-VQExp16/recon_{arg_runname}.png")
 
 for s, usage in enumerate(usages, start=1):
     stage_label = f"Stage {s}" if num_stages > 1 else "VQ"
-    save_codebook_histogram(usage, K=K, stage_label=stage_label,
+    K_s = k_per_stage[s - 1]
+    save_codebook_histogram(usage, K=K_s, stage_label=stage_label,
                             trained=trained, path=f"Experiment Logs/NS-VQExp16/codebook_{arg_runname}_stage_{s}.png")

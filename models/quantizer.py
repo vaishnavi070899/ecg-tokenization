@@ -423,17 +423,22 @@ class ResidualVectorQuantizer(nn.Module):
             all_indices list[(B, T)] — per-stage codebook index tensors
     """
 
-    def __init__(self, num_stages=2, num_embeddings=512, embedding_dim=64,
+    def __init__(self, num_stages=2, num_embeddings=512,
+                 num_embeddings_per_stage=None, embedding_dim=64,
                  commitment_cost=0.25, decay=0.99, epsilon=1e-5, buffer_size=2048,
                  use_nsvq=False, tau_per_stage=None, nsvq_alpha=0.1,
                  nsvq_repulse_gamma=0.05, nsvq_at_risk_thresh=5.0):
         super().__init__()
         self.num_stages = num_stages
+        # Per-stage codebook sizes: explicit list takes priority, else broadcast flat value
+        k_list = (num_embeddings_per_stage if num_embeddings_per_stage is not None
+                  else [num_embeddings] * num_stages)
+        self.num_embeddings_per_stage = k_list
         if tau_per_stage is None:
             tau_per_stage = [1.0] * num_stages
         self.stages = nn.ModuleList([
             VectorQuantizer(
-                num_embeddings=num_embeddings,
+                num_embeddings=k_list[s],
                 embedding_dim=embedding_dim,
                 commitment_cost=commitment_cost,
                 decay=decay,

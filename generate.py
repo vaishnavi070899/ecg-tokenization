@@ -29,8 +29,12 @@ from utils.plot import plot_ecg_grid
 
 
 def load_vqvae(checkpoint, device):
+    _k_per_stage = (config.NUM_EMBEDDINGS_PER_STAGE
+                    if config.NUM_RVQ_STAGES > 1 else None)
     model = VQVAE(input_dim=config.INPUT_DIM, latent_dim=config.LATENT_DIM,
-                  num_embeddings=config.NUM_EMBEDDINGS)
+                  num_embeddings=config.NUM_EMBEDDINGS,
+                  num_embeddings_per_stage=_k_per_stage,
+                  num_rvq_stages=config.NUM_RVQ_STAGES)
     model.load_state_dict(torch.load(checkpoint, map_location=device))
     return model.to(device).eval()
 
