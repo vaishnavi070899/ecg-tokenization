@@ -472,6 +472,28 @@ Default `U(−1/K, 1/K)` init gives codebook norms of ~0.018 — 50× smaller th
 
 ---
 
+### Experiment 11 — Latent Dimension Sweep (D ∈ {32, 64, 128})
+
+**Settings:** 4-stage RVQ, K=[256,256,128,64], NS-VQ Run B, warm-start (k-means++ + Lloyd), EMA_DECAY=0.95, EPOCHS=30, N_RECORDS=2000.
+
+| D | Best Val Recon | Sweep MSE | S1 Dead | S2 Dead | S3 Dead | S4 Dead | Perplexity |
+|---|---|---|---|---|---|---|---|
+| 32 | 0.005551 | 0.0059 | 16.8% | 21.5% | 10.2% | 10.9% | 95.3 |
+| **64** | **0.005178** | **0.0056** | **17.2%** | **20.7%** | **10.9%** | **3.1%** | **94.5** |
+| 128 | 0.005931 | 0.0070 | 14.1% | 27.0% | 10.9% | 3.1% | 92.8 |
+
+**Warm-start norms (Stage 1):**
+
+| D | Residual norm mean | Codebook norm mean |
+|---|---|---|
+| 32 | 0.5324 | 0.7520 |
+| 64 | 0.8943 | 1.2991 |
+| 128 | 1.4140 | 1.7954 |
+
+**Finding:** D=64 achieved the best reconstruction (val recon 0.005178, sweep MSE 0.0056). D=128 degraded both MSE and Stage 2 utilization (27.0% dead vs. 20.7% for D=64) — larger embeddings expand the residual search space faster than the fixed-size codebook can partition it. D=32 remained surprisingly competitive (MSE 0.0059), suggesting ECG morphology lies on a relatively low-dimensional latent manifold. Later stages (3–4) stayed stable across all D values due to stage-specific K scaling. Quantization efficiency is the binding constraint before encoder expressivity — D=64 selected as the default.
+
+---
+
 ## References
 
 - van den Oord et al. (2017) — [Neural Discrete Representation Learning (VQ-VAE)](https://arxiv.org/abs/1711.00937)
