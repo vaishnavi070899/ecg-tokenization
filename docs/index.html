@@ -1,1307 +1,1023 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><!-- frame-runtime --><script>window.__FRAME_PREAMBLE={"v":1,"capabilities":{"artifact":"artifact.B_zN8nKT.js","assets":"assets.8Gk803W0.js","comments":"comments.hEoja5zd.js","db":"db.DoKNwgX8.js","downloads":"downloads.th1YuAIk.js","embed":"embed.eqL6deQM.js","endpoints":"endpoints.CooJFPzL.js","mcp":"mcp.Ch3NPscy.js","network":"network.B5UA9Su4.js","permissions":"permissions.BNySkLV5.js","room":"room.Dc3WDo3b.js","sample":"sample.C2869FGz.js","self":"artifact.B_zN8nKT.js","user":"user.BpKav-Rf.js"},"transforms":"_transforms.Cil6ankx.js","comments":"_comments.e5-ml_Nr.js","translate":"_translate.5HCW4BJh.js","ldx":"_ldx.DycbNc-Q.js"}</script><script>(function(){"use strict";var fe=["light","dark","system"],de=/^[A-Za-z0-9_-]{1,64}$/,te=/^[a-zA-Z_:][a-zA-Z0-9_:.-]{0,127}$/,pe=new Set(["class","hidden","value","checked","style","title","alt","placeholder","lang","dir","role","tabindex","disabled","readonly","contenteditable","open","colspan","rowspan"]);function me(e){const t=e.toLowerCase();return t.startsWith("data-")||t.startsWith("aria-")||pe.has(t)}var $e="http://www.w3.org/1999/xhtml",he="http://www.w3.org/2000/svg",_e=new Set(["script","style","iframe","noscript","noframes","noembed","xmp","plaintext","template","title","textarea","object","embed"]),ve=new Set(["script","style"]);function ye(e){const t=e.localName.toLowerCase();return e.namespaceURI==="http://www.w3.org/1999/xhtml"?!_e.has(t):e.namespaceURI===he?!ve.has(t):!1}function x(e,t){return e===t||(e===160||e===32)&&(t===160||t===32)}function we(e,t){const r=e.length,n=t.length;let a=0;for(;a<r&&a<n&&x(e.charCodeAt(a),t.charCodeAt(a));)a++;let o=0;for(;o<r-a&&o<n-a&&x(e.charCodeAt(r-1-o),t.charCodeAt(n-1-o));)o++;return{p:a,s:o}}function Ee(e,t){const r=e.firstChild;if(e.childNodes.length!==1||r===null||r.nodeType!==Node.TEXT_NODE){e.textContent=t;return}const n=r.data,a=n.length,o=t.length,{p:c,s:i}=we(n,t);c===a&&i===0&&a===o||r.replaceData(c,a-c-i,t.slice(c,o-i));const m=r.data,f=e.ownerDocument.getSelection?.()??null,y=f!==null&&f.rangeCount>0&&(f.anchorNode===r||f.focusNode===r)?{anchor:f.anchorNode,anchorOffset:f.anchorOffset,focus:f.focusNode,focusOffset:f.focusOffset}:null;let d=-1,E=-1;for(let v=0;v<m.length&&v<t.length;v++){const A=m.charCodeAt(v),k=t.charCodeAt(v);A!==k&&x(A,k)&&(d<0&&(d=v),E=v)}const b=d>=0;if(b&&r.replaceData(d,E-d+1,t.slice(d,E+1)),b&&y!==null&&y.anchor!==null&&y.focus!==null)try{f.setBaseAndExtent(y.anchor,y.anchorOffset,y.focus,y.focusOffset)}catch{}}var be=new Set(["html","head","body","frameset"]);function ge(e){return e.namespaceURI==="http://www.w3.org/1999/xhtml"&&be.has(e.localName)}function Ae(e){if(e===null||typeof e!="object")return!1;const t=e;if(typeof t.target!="string"||!de.test(t.target)||t.text!==void 0&&typeof t.text!="string")return!1;if(t.attrsSet!==void 0){if(t.attrsSet===null||typeof t.attrsSet!="object")return!1;for(const[r,n]of Object.entries(t.attrsSet))if(!te.test(r)||typeof n!="string")return!1}if(t.attrsRemoved!==void 0){if(!Array.isArray(t.attrsRemoved))return!1;for(const r of t.attrsRemoved)if(typeof r!="string"||!te.test(r))return!1}return!0}function Le(e,t){if(e===null||typeof e!="object")return!1;const{seq:r,elements:n}=e;if(typeof r!="number"||!Number.isSafeInteger(r)||!Array.isArray(n)||n.length===0||n.length>64)return!1;for(let a=0;a<n.length;a++)if(!t(n[a]))return!1;return!0}function Te(e){return e===null||typeof e!="object"?!1:Le(e.__frame_patch,Ae)}function Se(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_init;return t!==null&&typeof t=="object"}function Re(e){return e!==null&&typeof e=="object"&&e.__frame_size_poke===!0}function ke(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_theme;if(t===null||typeof t!="object")return!1;const r=t.theme;return typeof r=="string"&&fe.includes(r)}var O=/^[\w.-]+\.js$/;function Pe(e,t,r){return r?"inert":typeof t=="string"&&O.test(t)?e?[t]:"inert":e?"inert":"framed"}var Ye="frame_ldx_runtime",Oe="frame_ldx_build",Ge="script#an-form";function Ce(){return{post(e,t){parent.postMessage(e,t)},on(e){const t=r=>{r.source===parent&&e(r.data,r.origin,r.isTrusted)};return addEventListener("message",t),()=>removeEventListener("message",t)}}}function Me(){return{post:()=>{},on:()=>()=>{}}}var F="__frame_scroll",je=150,Ne=310,De=160,Be=3e4;function Ie(){let e=0,t=!1,r=!1,n=!1,a=0,o=null;const c=u=>{try{sessionStorage.setItem(F,JSON.stringify({y:u}))}catch{}},i=()=>{if(clearTimeout(e),o===null)return;const u=o;o=null,c(u)},m=()=>{if(t){t=!1;return}r=!0,o=scrollY,clearTimeout(e),e=setTimeout(i,je)};try{addEventListener("scroll",m,{passive:!0}),addEventListener("pagehide",i)}catch{}const f=()=>{let u;try{u=sessionStorage.getItem(F)}catch{return null}if(u===null)return null;let g;try{g=JSON.parse(u)}catch{g=null}const w=g?.y;if(!(typeof w=="number"&&Number.isFinite(w)&&w>=0)){try{sessionStorage.removeItem(F)}catch{}return null}return w};let y=!1;const d=u=>{try{const g=scrollY;scrollTo({top:u,left:0,behavior:"instant"}),a=u,n=!0,clearTimeout(e),o=null,c(u);const w=scrollY;w!==g&&(t=!0),w!==u&&!y&&(y=!0,addEventListener("load",()=>{try{if(scrollY===w){const M=f();d(M!==null?M:a)}}catch{}},{once:!0}))}catch{}},E=()=>{try{return!!location.hash}catch{return!0}};let b=!1;const v=()=>{try{if(b||innerWidth>Ne||innerHeight>De)return;b=!0;const u=Date.now(),g=()=>{try{removeEventListener("resize",g)}catch{}if(Date.now()-u>Be||r||E())return;const w=f();d(w!==null?w:a)};addEventListener("resize",g)}catch{}};let A=!1,k=!1;return{restore(){if(A||(A=!0,E()))return;const u=f();u!==null&&(d(u),v())},promoted(){if(k||(k=!0,E()))return;const u=f();u!==null?(d(u),v()):n&&d(a)}}}function Ue(e,t,r,n){let a=null;try{a=window.trustedTypes?.createPolicy("frame-runtime",{createScriptURL:m=>m})??null}catch{}const o=window.Worker,c=o?.prototype,i=Object.freeze({Worker:o,workerOn:c?.addEventListener,workerPost:c?.postMessage,workerTerminate:c?.terminate,fetch:window.fetch.bind(window),preventDefault:Event.prototype.preventDefault,policy:a,origins:t});r(e).then(m=>m?.bootTopLevel?m.bootTopLevel(i,n):n.settle()).catch(()=>n.settle())}var Ve="modulepreload",Ze=function(e){return"/"+e},Je={},xe=function(t,r,n){let a=Promise.resolve();function o(c){const i=new Event("vite:preloadError",{cancelable:!0});if(i.payload=c,window.dispatchEvent(i),!i.defaultPrevented)throw c}return a.then(c=>{for(const i of c||[])i.status==="rejected"&&o(i.reason);return t().catch(o)})},Fe=window===top,re=Object.getOwnPropertyDescriptor(window,"claude"),j=Pe(Fe,window.__FRAME_PREAMBLE?.topLevel,re?.writable===!1),H=typeof j=="object"&&j[0],_=H?Me():Ce();(function(){const e=Object.defineProperty,t=globalThis,r=["RTCPeerConnection","webkitRTCPeerConnection","RTCDataChannel","RTCIceCandidate","RTCSessionDescription","RTCRtpSender","RTCRtpReceiver"];let n=0;for(let a=0;a<r.length;a++){const o=r[a];try{e(t,o,{value:void 0,writable:!1,configurable:!1})}catch{try{delete t[o]}catch{}try{e(t,o,{value:void 0,writable:!1,configurable:!0})}catch{}}typeof t[o]=="function"&&n++}if(n&&j==="framed")try{_.post({__frame_rtc_lockdown_failed:n},"*")}catch{}})();var He=1e4,ze=2e3,We=2e3,ne=Object.freeze([...window.__FRAME_PREAMBLE?.origins??["https://claude.ai","https://preview.claude.ai"]]);function oe(e){for(const t of ne)if(t.endsWith(":*"))try{const r=new URL(e);if(`${r.protocol}//${r.hostname}:*`===t)return!0}catch{}else if(e===t)return!0;return!1}var N=Object.freeze({...window.__FRAME_PREAMBLE?.capabilities}),z=window.__FRAME_PREAMBLE?.transforms,W=window.__FRAME_PREAMBLE?.comments,q=window.__FRAME_PREAMBLE?.translate,K=window.__FRAME_PREAMBLE?.ldx;function C(e){return xe(()=>import("/_runtime/"+e),void 0)}function se(e,t){return{contract:e.contract,changes:new Set(e.changes??[]),flags:new Set(e.flags??[]),capabilities:e.capabilities??{},capBudgets:e.capBudgets??{},transforms:new Map,shellOrigin:t,mount:Y,hooks:B,pipe:()=>({wrap:(r,n)=>(...a)=>{try{return n(...a)}catch(o){return Promise.reject(o)}}})}}var D=null,S=null;function ae(e,t,r){try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!1,enumerable:!0})}catch{try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!0,enumerable:!0})}catch{}}}var X=!1,B={editBefore:null,edit:null};function qe(e,t,r=!1){const n=[];let a;if(r)try{B.editBefore?.(e)}catch{}for(const o of e.elements){const c=document.querySelector(`[data-id="${o.target}"]`);if(!c){a=o.target;break}if([...Object.keys(o.attrsSet??{}),...o.attrsRemoved??[]].some(i=>!me(i))){a=o.target;break}if(o.text!==void 0&&(!ye(c)||ge(c))){a=o.target;break}for(const[i,m]of Object.entries(o.attrsSet??{}))if(!ce(c,i)){try{c.setAttribute(i,m)}catch{}ie(c,i,m)}for(const i of o.attrsRemoved??[])ce(c,i)||(c.removeAttribute(i),ie(c,i,null));typeof o.text=="string"&&Ee(c,o.text),n.push(o.target)}if(r)try{B.edit?.(e.seq,n,a)}catch{}if(a!==void 0){_.post({__frame_patch_miss:{seq:e.seq}},t);return}try{document.dispatchEvent(new CustomEvent("claude:edit",{detail:{seq:e.seq,targets:n}}))}catch{}}function ie(e,t,r){if(!(e instanceof HTMLInputElement))return;const n=t.toLowerCase();n==="checked"?e.checked=r!==null:n==="value"&&e.type!=="file"&&(e.value=r??"")}function ce(e,t){const r=t.toLowerCase(),n=e;return r==="data-id"||(r==="value"||r==="checked")&&(n.__artifactSecret===!0||/^(password|hidden|file)$/.test(n.type??"")||/(^|\s)(cc-|one-time-code|current-password|new-password)/i.test(`${e.getAttribute("autocomplete")??""} ${n.autocomplete??""}`))}function le(e){const t=document.documentElement;e==="light"||e==="dark"?(t.dataset.theme=e,t.style.colorScheme=e,X=!0):X&&(delete t.dataset.theme,t.style.colorScheme="",X=!1)}var I=new Map;function Ke(){let e;const t={u:new Promise(r=>{e=r}),r:r=>{t.done=!0,e(r)},done:!1,nulled:!1};return t}function $(){for(const e of I.values())e.done||(e.nulled=!0,e.r(null))}var Xe=Object.freeze(Object.assign(Object.create(null),{call:Function.prototype.call,apply:Function.prototype.apply,bind:Function.prototype.bind})),Y=(e,t)=>{const r=I.get(e);if(!r||r.done){r?.nulled&&S&&_.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:e}},S);return}const n=typeof t=="function"?Object.setPrototypeOf(t,Xe):Object.assign(Object.create(null),t);typeof n.then=="function"&&delete n.then,r.r(Object.freeze(n))};function ue(){const e=re?.value??{};ae(window,"claude",e);for(const t of Object.keys(N)){if(e[t]!==void 0){ae(e,t,e[t]);continue}I.set(t,Ke())}if(e.use===void 0){const t=r=>{if(typeof r!="string"||!Object.hasOwn(N,r))return Promise.resolve(null);const n=I.get(r);return n?n.u:Promise.resolve(e[r]??null)};try{Object.defineProperty(e,"use",{value:t,writable:!0,configurable:!0,enumerable:!1})}catch{}}}if(j==="framed"){const e=z&&O.test(z)?C(z).catch(()=>{}):Promise.resolve(void 0),t=s=>{if(s.type==="auxclick"&&s.button!==1)return;const h=s.target,p=h&&h.closest?h.closest("a[href],area[href]"):null;if(!p)return;const P=p.getAttribute("href");if(!P)return;let L;try{L=new URL(P,document.baseURI)}catch{return}if((L.protocol==="http:"||L.protocol==="https:")&&L.origin!==location.origin){s.preventDefault();const R=(p.getAttribute("target")??"").toLowerCase(),T=s.type==="auxclick"||s.metaKey||s.ctrlKey||s.shiftKey||s.altKey||!["","_self","_top","_parent"].includes(R);_.post({__frame_nav:!0,url:L.href,newTab:T},"*")}};addEventListener("click",t,!0),addEventListener("auxclick",t,!0);const r={},n=s=>{s.isTrusted&&(r.pointer=!0)},a=s=>{s.isTrusted&&(r.click=!0)};addEventListener("pointermove",n,{capture:!0,passive:!0}),addEventListener("click",a,{capture:!0,passive:!0});const o={cb:null};addEventListener("keydown",s=>o.cb?.(s),!0),e.then(s=>s?.installEscapeForward?.(o,h=>{S&&_.post(h,S)})),e.then(s=>{s?.wireNav&&(s.wireNav(),removeEventListener("click",t,!0),removeEventListener("auxclick",t,!0),removeEventListener("pointermove",n,!0),removeEventListener("click",a,!0),s.wireEngagement?.(r))});let c=null;try{c=Ie()}catch{}ue();let i=null,m=null,f=0;const y=_.on((s,h)=>{oe(h)&&Se(s)&&(i=s.__frame_init,S=h,y(),clearTimeout(f),m?.())});_.post({__frame_connect:!0},"*");const d=setTimeout,E=clearTimeout;let b=0;const v=()=>{try{_.post({__frame_alive:!0},"*")}catch{}b=d(v,ze)},A=()=>E(b);v(),addEventListener("load",A,{once:!0});const k=new Promise(s=>{m=s,f=setTimeout(()=>{y(),s()},He)}),u=document.readyState==="loading"?new Promise(s=>document.addEventListener("DOMContentLoaded",()=>s(),{once:!0})):Promise.resolve(),g=new WeakSet;addEventListener("error",s=>{s.target&&g.add(s.target)},!0);const w=()=>{let s=[];try{s=[...document.querySelectorAll("link[rel~=stylesheet]:not([rel~=alternate])")].filter(p=>!p.sheet&&!p.disabled&&!g.has(p)&&p.getAttribute("href")&&URL.canParse(p.href)&&(!p.media||matchMedia(p.media).matches))}catch{}let h=s.length;return h===0?Promise.resolve():new Promise(p=>{try{const P=d(p,We),L=()=>{--h===0&&(E(P),p())};for(const R of s)R.addEventListener("load",L,{once:!0}),R.addEventListener("error",L,{once:!0})}catch{p()}})};u.then(()=>{try{c?.restore()}catch{}});const M={cb:null};_.on((s,h)=>{if(oe(h)&&Re(s)){try{c?.promoted()}catch{}M.cb?.()}}),k.then(async()=>{if(!i||!S){$();return}le(i.theme);const s=S;let h=!1,p=!1;_.on((l,Z,U)=>{if(Z!==s)return;ke(l)&&le(l.__frame_theme.theme),Te(l)&&qe(l.__frame_patch,s,U);const J=l?.__fc_mode;J&&typeof J=="object"&&!h&&W&&O.test(W)&&(h=!0,C(W).then(ee=>ee.install?.(s,J.on===!0)).catch(()=>{}));const Q=l?.__ft_cmd;Q&&typeof Q=="object"&&!p&&q&&O.test(q)&&(p=!0,C(q).then(ee=>ee.install?.(s,Q)).catch(()=>{}))});const P=Object.keys(i.capabilities??{}).filter(l=>Object.hasOwn(N,l)).map(l=>[l,N[l]]).filter(l=>typeof l[1]=="string"&&O.test(l[1])),L=await Promise.allSettled(P.map(([,l])=>C(l))),R=await e,T=S;if(R?.buildBoot||_.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:"_transforms"}},T),R?.buildBoot)try{D=R.buildBoot(i,R.TRANSFORMS??{},{shellOrigin:T,mount:Y,hooks:B},l=>_.post({__frame_cap_telemetry:l},T))}catch{_.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:"_transforms"}},T),D=se(i,T)}else D=se(i,T);const G=l=>_.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:l}},T),V=D;L.forEach((l,Z)=>{const U=P[Z][0];if(l.status!=="fulfilled"){G(U);return}try{l.value?.install?.(V)}catch{G(U)}}),$(),await u,await w(),A(),_.post({__frame_ready:!0},S),e.then(l=>l?.installSizeReporter?.(T,M)),V.flags.has("frame_ldx_runtime")&&K&&O.test(K)&&document.querySelector("script#an-form")&&C(K).then(l=>l?.boot?.({shellOrigin:s,build:V.flags.has(Oe)})).catch(()=>!1).then(l=>{l!==!0&&G("_ldx")})})}else H&&(ue(),Ue(H,ne,C,{settle:$,mount:Y}))})();</script><!-- /frame-runtime -->
-<meta charset="UTF-8">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="PhD research on ECG tokenization using VQ-VAE/RVQ. 16 experiments investigating codebook collapse, representation learning, and ECG-language alignment for generative AI in cardiology.">
   <meta name="author" content="Vaishnavi Gupta, NYU Tandon School of Engineering">
   <meta property="og:title" content="ECG as Language — Tokenization Research">
-  <meta property="og:description" content="16 experiments on VQ-VAE codebook collapse for ECG signal tokenization">
+  <meta property="og:description" content="Discrete tokenization of ECG signals using Residual Vector Quantization — enabling cardiac waveforms for LLMs.">
   <meta property="og:url" content="https://vaishnavi070899.github.io/ecg-tokenization/">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ECG Discrete Tokenization — Phase 1 Research Documentation</title>
+<title>ECG as Language</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap">
+
 <style>
   :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --surface2: #1c2230;
-    --border: #30363d;
-    --accent: #58a6ff;
-    --accent2: #3fb950;
-    --accent3: #f78166;
-    --accent4: #d2a8ff;
-    --text: #e6edf3;
-    --text2: #8b949e;
-    --text3: #6e7681;
-    --pill-bg: #1f2937;
-    --success: #238636;
-    --warn: #9e6a03;
-    --fail: #da3633;
+    --bg: #FFFFFF;
+    --bg2: #F5F7FA;
+    --bg3: #EDF0F7;
+    --border: #D9DFE9;
+    --accent: #2563EB;
+    --accent2: #0D9488;
+    --heading: #1E3A5F;
+    --text: #374151;
+    --muted: #64748B;
+    --white: #FFFFFF;
+    --danger: #DC2626;
+    --success: #059669;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F172A;
+      --bg2: #1E293B;
+      --bg3: #273549;
+      --border: #334155;
+      --heading: #E2E8F0;
+      --text: #CBD5E1;
+      --muted: #94A3B8;
+      --white: #1E293B;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0F172A;
+    --bg2: #1E293B;
+    --bg3: #273549;
+    --border: #334155;
+    --heading: #E2E8F0;
+    --text: #CBD5E1;
+    --muted: #94A3B8;
+    --white: #1E293B;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: -apple-system, 'Segoe UI', sans-serif;
-    font-size: 15px;
-    line-height: 1.7;
-    display: flex;
-    min-height: 100vh;
-  }
-  /* SIDEBAR */
-  #sidebar {
-    width: 260px;
-    min-width: 260px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    position: fixed;
-    top: 0; left: 0; bottom: 0;
-    overflow-y: auto;
-    padding: 24px 0;
-    z-index: 100;
-  }
-  .sidebar-title {
-    padding: 0 20px 16px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text3);
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 12px;
-  }
-  .nav-section {
-    padding: 4px 0;
-  }
-  .nav-label {
-    padding: 6px 20px 2px;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text3);
-  }
-  .nav-item {
-    display: block;
-    padding: 6px 20px;
-    font-size: 13px;
-    color: var(--text2);
-    cursor: pointer;
-    border-left: 3px solid transparent;
-    transition: all 0.15s;
-    text-decoration: none;
-    line-height: 1.4;
-  }
-  .nav-item:hover { color: var(--text); background: var(--surface2); }
-  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(88,166,255,0.05); }
-  .nav-item.exp-link { padding-left: 32px; font-size: 12px; }
-  /* MAIN */
-  #main {
-    margin-left: 260px;
-    flex: 1;
-    max-width: 900px;
-    padding: 48px 40px;
-  }
-  /* HERO */
-  .hero {
-    margin-bottom: 56px;
-    padding-bottom: 40px;
-    border-bottom: 1px solid var(--border);
-  }
-  .hero-eyebrow {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--accent);
-    letter-spacing: 0.04em;
-    margin-bottom: 12px;
-  }
-  .hero h1 {
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 1.25;
-    color: var(--text);
-    margin-bottom: 16px;
-  }
-  .hero-meta {
-    font-size: 13px;
-    color: var(--text2);
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-  }
-  .hero-meta span { display: flex; align-items: center; gap: 6px; }
-  .hero-abstract {
-    font-size: 14px;
-    color: var(--text2);
-    line-height: 1.75;
-    max-width: 720px;
-    border-left: 3px solid var(--accent);
-    padding-left: 20px;
-  }
-  /* SECTION */
-  .section {
-    margin-bottom: 64px;
-    scroll-margin-top: 24px;
-  }
-  .section-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-  }
-  .section-subtitle {
+    font-family: 'DM Sans', system-ui, sans-serif;
     font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
-    margin: 28px 0 12px;
+    line-height: 1.65;
+    padding-inline: 0;
   }
-  p { color: var(--text2); margin-bottom: 14px; line-height: 1.75; }
-  /* EXPERIMENT CARD */
-  .exp-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 32px;
-    overflow: hidden;
-    scroll-margin-top: 24px;
-  }
-  .exp-header {
-    padding: 16px 20px;
-    background: var(--surface2);
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
+    z-index: 100;
+    padding: 0 2rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) nav { background: rgba(15,23,42,0.92); }
+  }
+  :root[data-theme="dark"] nav { background: rgba(15,23,42,0.92); }
+
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
     display: flex;
     align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    user-select: none;
+    justify-content: space-between;
+    height: 56px;
+    gap: 1rem;
   }
-  .exp-num {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--accent);
-    background: rgba(88,166,255,0.1);
-    border: 1px solid rgba(88,166,255,0.25);
-    padding: 2px 8px;
-    border-radius: 4px;
+
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    color: var(--heading);
+    text-decoration: none;
     white-space: nowrap;
   }
-  .exp-title-text { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; }
-  .exp-status {
-    font-size: 11px;
+
+  .nav-links {
+    display: flex;
+    gap: 1.75rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+
+  .nav-cta {
+    font-size: 0.8rem;
     font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 20px;
+    background: var(--accent);
+    color: #fff !important;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
     white-space: nowrap;
+    transition: opacity 0.15s;
   }
-  .status-done { background: rgba(35,134,54,0.15); color: var(--accent2); border: 1px solid rgba(35,134,54,0.3); }
-  .status-pending { background: rgba(158,106,3,0.15); color: #e3b341; border: 1px solid rgba(158,106,3,0.3); }
-  .exp-toggle { color: var(--text3); font-size: 12px; }
-  .exp-body { padding: 20px; display: none; }
-  .exp-body.open { display: block; }
-  /* CARDS WITHIN EXP */
-  .info-row {
+
+  .nav-cta:hover { opacity: 0.88; }
+
+  @media (max-width: 640px) {
+    .nav-links { display: none; }
+  }
+
+  /* SECTIONS */
+  section { padding: 5rem 2rem; }
+  section:nth-child(even) { background: var(--bg2); }
+
+  .container {
+    max-width: 1060px;
+    margin: 0 auto;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 5rem 2rem 4rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-inner {
+    max-width: 1060px;
+    margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 3rem;
+    align-items: center;
   }
-  .info-box {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 14px;
+
+  @media (max-width: 760px) {
+    .hero-inner { grid-template-columns: 1fr; }
   }
-  .info-box-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 6px; }
-  .info-box-value { font-size: 13px; color: var(--text); line-height: 1.5; }
-  /* TABLE */
-  .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
-  .data-table th {
-    background: var(--surface2);
-    color: var(--text2);
-    font-size: 11px;
+
+  .hero-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
     font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 10px 12px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    padding: 0.3rem 0.75rem;
+    border-radius: 99px;
+    margin-bottom: 1.25rem;
   }
-  .data-table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text2);
-    vertical-align: top;
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.2;
+    color: var(--heading);
+    text-wrap: balance;
+    margin-bottom: 1rem;
   }
-  .data-table tr:last-child td { border-bottom: none; }
-  .data-table tr:hover td { background: var(--surface2); }
-  .val-good { color: var(--accent2); font-weight: 600; }
-  .val-bad { color: var(--accent3); }
-  .val-neutral { color: var(--accent); }
-  /* INSIGHT BOX */
-  .insight {
-    background: rgba(88,166,255,0.05);
-    border: 1px solid rgba(88,166,255,0.2);
-    border-radius: 6px;
-    padding: 14px 16px;
-    margin: 16px 0;
-    font-size: 13px;
-    color: var(--text);
-    line-height: 1.65;
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
   }
-  .insight strong { color: var(--accent); }
-  .conclusion {
-    background: rgba(63,185,80,0.05);
-    border: 1px solid rgba(63,185,80,0.2);
-    border-radius: 6px;
-    padding: 14px 16px;
-    margin: 16px 0;
-    font-size: 13px;
-    color: var(--text);
-    line-height: 1.65;
+
+  .hero-desc {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 480px;
+    margin-bottom: 1.75rem;
+    line-height: 1.7;
   }
-  .conclusion strong { color: var(--accent2); }
-  .warning-box {
-    background: rgba(247,129,102,0.05);
-    border: 1px solid rgba(247,129,102,0.2);
-    border-radius: 6px;
-    padding: 14px 16px;
-    margin: 16px 0;
-    font-size: 13px;
-    color: var(--text);
-    line-height: 1.65;
+
+  .hero-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin-bottom: 1.75rem;
   }
-  .warning-box strong { color: var(--accent3); }
-  /* METRIC PILLS */
-  .metrics-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
-  .metric-pill {
-    background: var(--pill-bg);
+
+  .hero-meta strong { color: var(--text); }
+
+  .hero-btns {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.6rem 1.25rem;
+    border-radius: 7px;
+    text-decoration: none;
+    transition: all 0.15s;
+    border: 1.5px solid transparent;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .btn-primary:hover { opacity: 0.88; }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--heading);
+    border-color: var(--border);
+  }
+
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ECG Canvas */
+  .hero-canvas-wrap {
+    background: var(--bg2);
     border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 8px 14px;
-    font-size: 12px;
-  }
-  .metric-pill-label { color: var(--text3); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
-  .metric-pill-val { color: var(--text); font-weight: 700; font-size: 15px; }
-  /* ROADMAP */
-  .roadmap { display: flex; gap: 0; margin: 24px 0; }
-  .phase-block {
-    flex: 1;
-    padding: 14px;
-    border: 1px solid var(--border);
-    background: var(--surface);
+    border-radius: 12px;
+    overflow: hidden;
     position: relative;
   }
-  .phase-block:not(:last-child) { border-right: none; }
-  .phase-block:first-child { border-radius: 6px 0 0 6px; }
-  .phase-block:last-child { border-radius: 0 6px 6px 0; }
-  .phase-num { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
-  .phase-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-  .phase-exps { font-size: 11px; color: var(--accent); }
-  /* FINAL ARCH TABLE */
-  .arch-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
-  .arch-table th { background: var(--surface2); color: var(--text2); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
-  .arch-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text2); }
-  .arch-table tr:last-child td { border-bottom: none; }
-  .arch-val { color: var(--accent4); font-weight: 600; }
-  /* UNCOMFORTABLE Q */
-  .qa-block { margin: 16px 0; }
-  .qa-q { font-size: 14px; font-weight: 600; color: var(--accent3); margin-bottom: 8px; padding-left: 12px; border-left: 3px solid var(--accent3); }
-  .qa-a { font-size: 13px; color: var(--text2); line-height: 1.7; padding-left: 15px; margin-bottom: 20px; }
-  /* DECISION FLOW */
-  .decision-row { display: flex; align-items: stretch; gap: 0; margin: 16px 0; }
-  .decision-node {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 12px 16px;
-    font-size: 12px;
-    flex: 1;
-    text-align: center;
+
+  .hero-canvas-wrap canvas {
+    display: block;
+    width: 100%;
+    height: auto;
   }
-  .decision-arrow { display: flex; align-items: center; padding: 0 8px; color: var(--text3); font-size: 18px; }
-  /* RESPONSIVE */
-  @media (max-width: 768px) {
-    #sidebar { display: none; }
-    #main { margin-left: 0; padding: 24px 20px; }
-    .info-row { grid-template-columns: 1fr; }
-    .roadmap { flex-direction: column; }
-    .phase-block:not(:last-child) { border-right: 1px solid var(--border); border-bottom: none; }
-    .phase-block:first-child { border-radius: 6px 6px 0 0; }
-    .phase-block:last-child { border-radius: 0 0 6px 6px; }
+
+  .canvas-label {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* SECTION HEADERS */
+  .section-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: var(--heading);
+    text-wrap: balance;
+    margin-bottom: 0.75rem;
+  }
+
+  .section-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+  }
+
+  /* STAT TILES */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+
+  .stat-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.25rem;
+    color: var(--heading);
+    line-height: 1;
+    margin-bottom: 0.35rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-value.teal { color: var(--accent2); }
+  .stat-value.blue { color: var(--accent); }
+
+  .stat-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* PIPELINE / ARCH */
+  .pipeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .pipe-step {
+    flex: 1;
+    min-width: 130px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 0;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .pipe-step:first-child { border-radius: 10px 0 0 10px; }
+  .pipe-step:last-child { border-radius: 0 10px 10px 0; }
+
+  .pipe-step::after {
+    content: '→';
+    position: absolute;
+    right: -0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 1rem;
+    z-index: 1;
+    background: var(--bg2);
+    padding: 0 2px;
+  }
+
+  .pipe-step:last-child::after { display: none; }
+
+  .pipe-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .pipe-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--heading);
+    margin-bottom: 0.25rem;
+  }
+
+  .pipe-detail {
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .pipe-step.highlight {
+    background: color-mix(in srgb, var(--accent) 8%, var(--white));
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+
+  .pipe-step.highlight .pipe-name { color: var(--accent); }
+
+  /* FINDINGS */
+  .findings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .finding-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+
+  .finding-num {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .finding-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    color: var(--heading);
+    margin-bottom: 0.6rem;
+    line-height: 1.35;
+  }
+
+  .finding-body {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  .finding-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 99px;
+    margin-top: 0.85rem;
+  }
+
+  .tag-green { background: color-mix(in srgb, var(--success) 12%, transparent); color: var(--success); }
+  .tag-red { background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); }
+  .tag-blue { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
+  .tag-teal { background: color-mix(in srgb, var(--accent2) 12%, transparent); color: var(--accent2); }
+
+  /* CODEBOOK STATES */
+  .states-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  .state-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    background: var(--white);
+  }
+
+  .state-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
+  }
+
+  .state-header {
+    display: flex;
+    align-items: center;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--heading);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.01em;
+  }
+
+  .state-vals {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+    font-family: 'DM Sans', monospace;
+  }
+
+  .state-desc {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* PHASE 2 */
+  .roadmap {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .roadmap-item {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+
+  .roadmap-item:last-child { border-bottom: none; }
+
+  .roadmap-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: color-mix(in srgb, var(--accent) 30%, transparent);
+    line-height: 1;
+    padding-top: 0.1rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .roadmap-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--heading);
+    margin-bottom: 0.25rem;
+  }
+
+  .roadmap-body {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* FOOTER */
+  footer {
+    background: #1E3A5F;
+    color: rgba(255,255,255,0.65);
+    padding: 3rem 2rem;
+    text-align: center;
+    display: block;
+  }
+
+  .footer-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: #ffffff;
+    margin-bottom: 0.3rem;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1.25rem;
+    list-style: none;
+    padding: 0;
+  }
+
+  .footer-links a {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .footer-links a:hover { color: #ffffff; }
+
+  footer small {
+    display: block;
+    margin-top: 1.5rem;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+  }
+
+  /* DIVIDER */
+  .divider {
+    width: 3rem;
+    height: 2px;
+    background: var(--accent);
+    margin: 0 0 2rem;
+  }
+
+  /* TOKEN table */
+  .token-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin-top: 1.5rem;
+    overflow-x: auto;
+    display: block;
+  }
+
+  .token-table th, .token-table td {
+    padding: 0.65rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .token-table th {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--bg2);
+  }
+
+  .token-table td { color: var(--text); }
+  .token-table tr:last-child td { border-bottom: none; }
+
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.82em;
+    background: var(--bg3);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    color: var(--accent);
   }
 </style>
-</head>
-<body>
 
-<nav id="sidebar">
-  <div class="sidebar-title">ECG Tokenization · Phase 1</div>
-  <div class="nav-section">
-    <div class="nav-item active" onclick="scrollTo('hero')">Overview</div>
-    <div class="nav-item" onclick="scrollTo('why')">Why VQ-VAE / Why ECG</div>
-    <div class="nav-item" onclick="scrollTo('architecture')">Architecture</div>
-    <div class="nav-item" onclick="scrollTo('metrics')">Metrics Guide</div>
-    <div class="nav-item" onclick="scrollTo('methodology')">Methodology</div>
-    <div class="nav-item" onclick="scrollTo('flowchart')">Decision Flowchart</div>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">Phase 1 — Baseline</div>
-    <div class="nav-item exp-link" onclick="scrollTo('exp1')">Exp 1 · Codebook Size Sweep</div>
-    <div class="nav-item exp-link" onclick="scrollTo('exp2')">Exp 2 · Codebook Reset</div>
-    <div class="nav-item exp-link" onclick="scrollTo('exp12')">Exp 12 · Reset at K=1024/128</div>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">Phase 2 — Diagnostics</div>
-    <div class="nav-item exp-link" onclick="scrollTo('exp3')">Exp 3 · EMA Decay</div>
-    <div class="nav-item exp-link" onclick="scrollTo('exp4')">Exp 4 · Data Scaling</div>
-    <div class="nav-item exp-link" onclick="scrollTo('exp5')">Exp 5 · RVQ (2/3/4 layers)</div>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">Phase 3 — Regularization</div>
-    <div class="nav-item exp-link" onclick="scrollTo('exp13')">Exp 13 · Entropy Regularization</div>
-    <div class="nav-item exp-link" onclick="scrollTo('exp14')">Exp 14 · Usage Penalty</div>
-    <div class="nav-item exp-link" onclick="scrollTo('exp15')">Exp 15 · Soft Assignments</div>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">Phase 4 — Architecture</div>
-    <div class="nav-item exp-link" onclick="scrollTo('exp16')">Exp 16 · NS-VQ + Warm-Start</div>
-    <div class="nav-item exp-link" onclick="scrollTo('exp6')">Exp 6 · Latent Dimension D</div>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">Summary</div>
-    <div class="nav-item" onclick="scrollTo('results')">Results & Observations</div>
-    <div class="nav-item" onclick="scrollTo('final')">Final Architecture</div>
-    <div class="nav-item" onclick="scrollTo('uncomfortable')">Anticipated Questions</div>
-    <div class="nav-item" onclick="scrollTo('next')">Phase 2 Roadmap</div>
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="#">ECG as Language</a>
+    <ul class="nav-links">
+      <li><a href="#motivation">Motivation</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#findings">Findings</a></li>
+      <li><a href="#phase2">Phase 2</a></li>
+    </ul>
+    <a class="nav-cta btn" href="https://github.com/vaishnavi070899/ecg-tokenization" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
   </div>
 </nav>
 
-<main id="main">
-
 <!-- HERO -->
-<div class="hero" id="hero">
-  <div class="hero-eyebrow">Phase 1 Complete · PTB-XL · 16 Experiments</div>
-  <h1>Discrete Tokenization of ECG Signals via Residual Vector Quantization</h1>
-  
-      <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
-        <a href="https://github.com/vaishnavi070899/ecg-tokenization" target="_blank" rel="noopener"
-           style="display:inline-flex;align-items:center;gap:0.5rem;background:#21262d;color:#e6edf3;padding:0.5rem 1.2rem;border-radius:6px;text-decoration:none;font-size:0.9rem;font-weight:500;border:1px solid #30363d;">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-          View Code on GitHub
-        </a>
-        <a href="mailto:vgg2023@nyu.edu"
-           style="display:inline-flex;align-items:center;gap:0.5rem;background:transparent;color:#8b949e;padding:0.5rem 1.2rem;border-radius:6px;text-decoration:none;font-size:0.9rem;font-weight:500;border:1px solid #30363d;">
-          vgg2023@nyu.edu
-        </a>
-      </div>
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-label">PhD Research · Phase 1</div>
+      <h1>Can ECG signals be<br>treated as <em>language</em>?</h1>
+      <p class="hero-desc">
+        Discrete tokenization of 12-lead ECG signals using Residual Vector Quantization — enabling cardiac waveforms to be processed by large language models for generative cardiology AI.
+      </p>
       <div class="hero-meta">
-    <span>Vaishnavi Gupta</span>
-    <span>NYU Tandon School of Engineering</span>
-    <span>ECG as Language Project</span>
-    <span>Aug 2026</span>
+        <div><strong>Vaishnavi Gupta</strong> · NYU Tandon School of Engineering</div>
+        <div>M.S. Robotics & Mechatronics · Advised by Prof. Vikram Kapila</div>
+        <div>Dataset: PTB-XL · 21,799 ECGs · Lead I · 100 Hz</div>
+      </div>
+      <div class="hero-btns">
+        <a class="btn btn-primary" href="https://github.com/vaishnavi070899/ecg-tokenization" target="_blank" rel="noopener">View Code</a>
+        <a class="btn btn-outline" href="mailto:vgg2023@nyu.edu">Contact</a>
+      </div>
+    </div>
+    <div class="hero-canvas-wrap">
+      <canvas id="ecgCanvas" width="540" height="280"></canvas>
+      <span class="canvas-label">PTB-XL · Lead I · 100 Hz</span>
+    </div>
   </div>
-  <div class="hero-abstract">
-    We investigate whether ECG time-series can be tokenized into a discrete vocabulary suitable for downstream arrhythmia classification and generative modeling. The central obstacle is codebook collapse. Across sixteen experiments on PTB-XL (21,799 ECGs), we show collapse in multi-stage RVQ has three distinct causes — early training instability, a data-driven capacity ceiling of ~120 active codes per encoder stage, and stage hierarchy mismatch — and that standard regularization approaches address only the first. The architectural solution combines stage-specific codebook sizing K=[256,256,128,64], k-means++ warm-start initialization, and a Non-Stationary VQ neighbor update, achieving 97.7% codebook utilization and MSE=0.0058 on PTB-XL — the first configuration to simultaneously satisfy all three viability criteria.
+</header>
+
+<!-- STATS -->
+<section style="padding:3rem 2rem; background:var(--bg2);">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value blue">16</div>
+        <div class="stat-label">Experiments across<br>Phase 1 ablation study</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value teal">21,799</div>
+        <div class="stat-label">ECG recordings from<br>PTB-XL benchmark dataset</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value blue">4</div>
+        <div class="stat-label">VQ-VAE codebook<br>stages in final RVQ</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value teal">~120</div>
+        <div class="stat-label">Natural active code<br>capacity per stage</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value blue">64</div>
+        <div class="stat-label">Latent dimension (D)<br>of each codebook</div>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
-<!-- WHY VQ-VAE / WHY ECG -->
-<div class="section" id="why">
-  <div class="section-title">Why VQ-VAE — Why ECG Before EEG</div>
-
-  <div class="section-subtitle">Why VQ-VAE for ECG Tokenization</div>
-  <p>VQ-VAE is the canonical architecture for learning discrete, reusable representations from continuous signals. It replaces the continuous latent space of a standard VAE with a learned codebook — a finite vocabulary of prototypical patterns. For ECG signals, this is exactly the right framing: a cardiologist reading a rhythm strip is not doing regression over a continuous signal, they are recognizing discrete morphological patterns — P waves, QRS complexes, ST deviations — and applying them diagnostically. VQ-VAE learns that vocabulary from data.</p>
-  <p>The alternative discrete approaches — patch-based tokenization, fixed scalar quantization, masked reconstruction — either lack learned vocabularies, sacrifice adaptive alignment, or do not produce reusable token indices suitable for autoregressive modeling. VQ-VAE's token indices are directly analogous to word indices in a text vocabulary, making downstream sequence modeling straightforward.</p>
-  <p>The precedent from audio is strong: SoundStream and EnCodec both use Residual VQ-VAE as their tokenization backbone, and both produce discrete token sequences that support downstream generation. The structural analogy to ECG is direct — both are continuous time-series signals with repeating structural units.</p>
-
-  <div class="section-subtitle">Why ECG Before EEG</div>
-  <p>ECG signals have a well-defined, repeating unit structure — the PQRST complex — with known clinical meaning at each component. A single cardiac cycle is approximately 0.6–1.0 seconds, and its morphology is consistent enough across patients that clinicians use the same vocabulary to describe it globally. This makes ECG an ideal proving ground for discrete tokenization: if a learned codebook can capture clinically meaningful structure in a signal with known ground truth morphology, the methodology can later be extended to EEG.</p>
-  <p>EEG, by contrast, is higher-dimensional (64+ channels vs 12), noisier, lacks a repeating structural unit analogous to PQRST, and does not have the same rich public labeling infrastructure. Starting with ECG is a deliberate scaffolding decision — validate the tokenization framework on a tractable signal first, then transfer to the target domain. This follows the same logic SoundStream applied to audio before extending to noisier real-world acoustic environments.</p>
-</div>
+<!-- MOTIVATION -->
+<section id="motivation">
+  <div class="container">
+    <div class="section-eyebrow">Why this matters</div>
+    <h2 class="section-title">Bridging cardiac signals and language models</h2>
+    <p class="section-sub">ECG interpretation remains a specialized, bottlenecked skill. Tokenization translates continuous waveforms into discrete symbols that transformer-based LLMs can natively process — unlocking generative AI for clinical cardiology.</p>
+    <div class="divider"></div>
+    <div class="findings-grid">
+      <div class="finding-card">
+        <div class="finding-num">Problem</div>
+        <div class="finding-title">ECG data is continuous, LLMs are discrete</div>
+        <div class="finding-body">Large language models operate on tokens — finite symbol sequences. Raw ECG waveforms are continuous-time signals. No direct interface exists between them without an explicit discretization step.</div>
+        <span class="finding-tag tag-red">Core bottleneck</span>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">Approach</div>
+        <div class="finding-title">VQ-VAE learns a cardiac codebook</div>
+        <div class="finding-body">A Vector Quantized Variational Autoencoder compresses ECG segments into a finite learned vocabulary. Residual quantization (RVQ) stacks multiple codebook stages to progressively refine representation quality.</div>
+        <span class="finding-tag tag-blue">This research</span>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">Vision</div>
+        <div class="finding-title">Generative + diagnostic AI for cardiology</div>
+        <div class="finding-body">Tokenized ECGs can feed into transformer decoders for generation, clinical Q&A, and anomaly detection — analogous to how image tokens power visual LLMs. Downstream classification from token sequences also becomes tractable.</div>
+        <span class="finding-tag tag-teal">Phase 2 goal</span>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ARCHITECTURE -->
-<div class="section" id="architecture">
-  <div class="section-title">Architecture Overview</div>
-  <div class="info-row">
-    <div class="info-box">
-      <div class="info-box-label">Encoder</div>
-      <div class="info-box-value">1D CNN · 3 strided convolutions<br>Channels: 1→32→64→D<br>Kernel=4, Stride=2, Padding=1<br>8× downsampling · 125 tokens</div>
-    </div>
-    <div class="info-box">
-      <div class="info-box-label">Quantization</div>
-      <div class="info-box-value">Hard nearest-neighbor (argmin)<br>EMA codebook update (γ=0.95)<br>K-Means Centroid Reset<br>RVQ — 4 cascaded stages</div>
-    </div>
-    <div class="info-box">
-      <div class="info-box-label">Codebook (Final)</div>
-      <div class="info-box-value">Stage-specific K=[256,256,128,64]<br>Total entries: 704<br>D=64 embedding dimension<br>NS-VQ neighbor update</div>
-    </div>
-    <div class="info-box">
-      <div class="info-box-label">Training</div>
-      <div class="info-box-value">PTB-XL · 100Hz · Lead I<br>Z-score normalized<br>Adam lr=1e-3 · β=0.25<br>k-means++ warm-start init</div>
-    </div>
-  </div>
-  <div class="section-subtitle">Loss Function</div>
-  <p><strong style="color:var(--text)">Reconstruction loss</strong> — MSE between input and reconstructed ECG. Forces tokens to preserve signal structure.</p>
-  <p><strong style="color:var(--text)">Codebook loss</strong> — pushes codebook vectors toward encoder outputs.</p>
-  <p><strong style="color:var(--text)">Commitment loss (β=0.25)</strong> — pushes encoder outputs toward codebook vectors, preventing encoder drift.</p>
-  <p><strong style="color:var(--text)">Straight-through estimator</strong> — passes gradients through the non-differentiable argmin step during backpropagation. Codebook updates via EMA, not gradient descent.</p>
-</div>
-
-<!-- METRICS -->
-<div class="section" id="metrics">
-  <div class="section-title">Metrics Guide</div>
-  <p>No single metric tells the full story. All three must be interpreted jointly — each one reveals a different dimension of codebook health, and the interaction between them is what exposes what the model is actually doing.</p>
-
-  <div class="section-subtitle">Mean MSE — Reconstruction Quality</div>
-  <p>Mean MSE measures the average squared difference between the original ECG signal and its reconstruction after passing through encoder → codebook → decoder. It is the most intuitive metric: lower means the signal came back more accurately.</p>
-  <p>MSE is the easiest metric to improve and the most dangerous to optimize in isolation. A model can achieve low MSE by collapsing onto just 20–30 dominant codes and reconstructing everything with those — this is exactly what happened at K=1024 in Exp 1, where MSE=0.0876 looked like progress while 87.5% of the codebook was dead. <strong style="color:var(--text)">Low MSE is necessary but not sufficient for a healthy model.</strong> It must always be read alongside utilization and diversity.</p>
-  <div class="insight"><strong>Target:</strong> MSE &lt; 0.009. Final architecture: <span class="val-good">MSE = 0.0058</span>.</div>
-
-  <div class="section-subtitle">Dead Code % — Codebook Utilization</div>
-  <p>Dead code % is the fraction of codebook entries that receive zero assignments — entries the encoder never maps to during training. A dead code is permanently excluded from the learned vocabulary. The model has effectively decided that region of the codebook space is not useful, and because EMA updates are driven by assignments, codes that never win assignments never get updated — they stay dead indefinitely.</p>
-  <p>We want dead code % to be as low as possible. <strong style="color:var(--text)">High dead code % is the primary signal of codebook collapse.</strong> But there is a critical subtlety: a high activation count — many codes used at least once — does not mean the codebook is healthy. A code that activates twice per epoch while another activates 10,000 times is functionally almost dead. This is why dead code % alone is not enough — we also need perplexity to capture how evenly usage is distributed.</p>
-  <div class="insight"><strong>Target:</strong> Dead code % &lt; 5%. Final architecture Stage 4: <span class="val-good">1.6% dead</span>. Stage 2 structural ceiling: ~22% (signal property, not optimization failure).</div>
-
-  <div class="section-subtitle">Perplexity — Representational Diversity</div>
-  <p>Perplexity is the exponentiated Shannon entropy of the code usage distribution. Concretely: if you track what fraction of assignments goes to each codebook entry, perplexity measures how evenly spread that distribution is.</p>
-  <p>Perplexity = 1 means a single code wins every assignment. Perplexity = K means every code is used equally — perfectly uniform distribution. In practice, healthy models land somewhere in between, but far from 1.</p>
-  <p><strong style="color:var(--text)">Perplexity is the most honest metric in the project.</strong> It captures not just whether codes are used, but how evenly — and it consistently exposed the limits of every intervention before the other metrics did. In Exp 4, data scaling improved MSE significantly but perplexity held flat at 0.65–0.70 normalized across all dataset sizes, proving that more data was not helping the codebook become more expressive.</p>
-  <div class="insight"><strong>Target:</strong> Aggregate perplexity &gt; 355 (single-stage baseline at γ=0.95). Final architecture aggregate: <span class="val-good">627.6</span> (sum across all 4 stages).</div>
-
-  <div class="section-subtitle">Reading All Three Together — The Four Scenarios</div>
-  <p>These scenarios capture every meaningful combination of metric states. The goal is to be in Scenario 1 across all stages simultaneously — which the final architecture achieves for the first time across all 16 experiments.</p>
-
-  <table class="data-table" style="margin-top:12px">
-    <thead><tr><th>Scenario</th><th>MSE</th><th>Dead Code %</th><th>Perplexity</th><th>What it means</th><th>Example</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><strong style="color:var(--accent2)">Healthy Representation</strong></td>
-        <td class="val-good">Low</td>
-        <td class="val-good">Low</td>
-        <td class="val-good">High</td>
-        <td>The codebook is active, diverse, and preserving signal fidelity. Tokens are meaningfully distributed. This is the target state.</td>
-        <td>Full Stack Exp 16, Stage 4: MSE=0.0058, dead=1.6%, perp≈98% of K</td>
-      </tr>
-      <tr>
-        <td><strong style="color:var(--accent3)">Codebook Collapse</strong></td>
-        <td>Low–Med</td>
-        <td class="val-bad">High</td>
-        <td class="val-bad">Low</td>
-        <td>A small subset of codes dominates all assignments. The model reconstructs adequately using a tiny vocabulary — but that vocabulary is not expressive or reusable. The most common failure mode in this project.</td>
-        <td>Exp 1, K=1024: MSE=0.0876, dead=87.5%, perp=91.9 out of 1024 possible</td>
-      </tr>
-      <tr>
-        <td><strong style="color:var(--accent4)">Forced Activation</strong></td>
-        <td>Low</td>
-        <td class="val-good">Low</td>
-        <td class="val-bad">Low</td>
-        <td>Codes are technically active but redundant — many codes win assignments, but a few dominant ones still capture most of the distribution. Activation count looks healthy; perplexity exposes the skew. Often seen after aggressive reset strategies.</td>
-        <td>Exp 2, Random Restart: 395/512 active (looks great) but perp=314.8 — still heavily skewed</td>
-      </tr>
-      <tr>
-        <td><strong style="color:var(--accent)">Over-Compression</strong></td>
-        <td class="val-bad">Medium–High</td>
-        <td class="val-good">Low</td>
-        <td class="val-good">High</td>
-        <td>The codebook is too small — essentially everything gets used because there is no room for dead codes, but reconstruction suffers because K is below the signal's intrinsic complexity. Utilization looks excellent; MSE exposes the capacity problem.</td>
-        <td>Exp 5, K=128 RVQ-4: dead=~6% (excellent), perp≈93% of K (excellent), but MSE=0.0115 — worse than K=256</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="warning-box" style="margin-top:20px"><strong>The failure mode to watch for:</strong> A system can be in Scenario 1 on MSE and Scenario 2 on perplexity simultaneously — and the MSE number will look fine. This is exactly what happened across Exp 1–5 before RVQ. Low MSE ≠ healthy model. Always check all three.</div>
-</div>
-
-<!-- METHODOLOGY -->
-<div class="section" id="methodology">
-  <div class="section-title">Experimental Methodology</div>
-  <p>Experiments are designed to address one variable at a time, building on each result to inform the next. Decisions are never made on a single metric — each experiment is evaluated across MSE, active codes, dead code %, and perplexity simultaneously. All experiments run locally on a laptop without GPU access. Data is PTB-XL (21,799 records, Lead I, 100Hz, z-score normalized).</p>
-  <div class="roadmap">
-    <div class="phase-block">
-      <div class="phase-num">Phase 1</div>
-      <div class="phase-name">K Sweep & Reset</div>
-      <div class="phase-exps">Exp 1, 2, 12</div>
-    </div>
-    <div class="phase-block">
-      <div class="phase-num">Phase 2</div>
-      <div class="phase-name">Diagnostics & RVQ</div>
-      <div class="phase-exps">Exp 3, 4, 5</div>
-    </div>
-    <div class="phase-block">
-      <div class="phase-num">Phase 3</div>
-      <div class="phase-name">Regularization</div>
-      <div class="phase-exps">Exp 13, 14, 15</div>
-    </div>
-    <div class="phase-block">
-      <div class="phase-num">Phase 4</div>
-      <div class="phase-name">Architecture</div>
-      <div class="phase-exps">Exp 16, 6</div>
-    </div>
-  </div>
-  <p>Execution order: 1 → 2 → 12 → 3 → 4 → 5 → 13 → 14 → 15 → 16 → 6</p>
-</div>
-
-<!-- FLOWCHART -->
-<div class="section" id="flowchart">
-  <div class="section-title">Experiment Decision Flowchart</div>
-  <p>Each experiment was motivated by a specific finding from the previous one. This chain shows what each result revealed, what correction it suggested, and what that correction actually produced.</p>
-
-  <style>
-    .flow-node {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px 18px;
-      margin-bottom: 0;
-      position: relative;
-    }
-    .flow-node-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .flow-exp-badge {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--accent);
-      background: rgba(88,166,255,0.1);
-      border: 1px solid rgba(88,166,255,0.25);
-      padding: 2px 8px;
-      border-radius: 4px;
-      white-space: nowrap;
-    }
-    .flow-exp-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-    }
-    .flow-finding {
-      font-size: 12px;
-      color: var(--text2);
-      margin-bottom: 8px;
-      line-height: 1.6;
-      padding-left: 12px;
-      border-left: 2px solid var(--border);
-    }
-    .flow-finding strong { color: var(--accent3); }
-    .flow-proposed {
-      font-size: 12px;
-      color: var(--text2);
-      margin-bottom: 8px;
-      line-height: 1.6;
-      padding-left: 12px;
-      border-left: 2px solid rgba(210,168,255,0.4);
-    }
-    .flow-proposed strong { color: var(--accent4); }
-    .flow-outcome {
-      font-size: 12px;
-      color: var(--text2);
-      line-height: 1.6;
-      padding-left: 12px;
-      border-left: 2px solid rgba(63,185,80,0.4);
-    }
-    .flow-outcome strong { color: var(--accent2); }
-    .flow-outcome.fail { border-left-color: rgba(247,129,102,0.4); }
-    .flow-outcome.fail strong { color: var(--accent3); }
-    .flow-connector {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 32px;
-      color: var(--text3);
-      font-size: 11px;
-      gap: 8px;
-      position: relative;
-    }
-    .flow-connector::before {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: 0;
-      bottom: 0;
-      width: 1px;
-      background: var(--border);
-      transform: translateX(-50%);
-    }
-    .flow-connector-label {
-      background: var(--bg);
-      padding: 2px 8px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--text3);
-      z-index: 1;
-      letter-spacing: 0.04em;
-    }
-    .flow-phase-divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 20px 0 12px;
-    }
-    .flow-phase-divider::before, .flow-phase-divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-    .flow-phase-label {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text3);
-      white-space: nowrap;
-    }
-  </style>
-
-  <div style="max-width:680px; margin: 0 auto;">
-
-    <div class="flow-phase-divider"><span class="flow-phase-label">Phase 1 — Establishing the Baseline Problem</span></div>
-
-    <!-- EXP 1 -->
-    <div class="flow-node">
-      <div class="flow-node-header">
-        <span class="flow-exp-badge">Exp 1</span>
-        <span class="flow-exp-name">Codebook Size Sweep (K=64 → 1024, no reset)</span>
+<section id="architecture" style="background:var(--bg2);">
+  <div class="container">
+    <div class="section-eyebrow">System design</div>
+    <h2 class="section-title">RVQ-VAE tokenization pipeline</h2>
+    <p class="section-sub">A four-stage residual quantization architecture with stage-specific codebook sizes, EMA updates, and centroid reset for collapse prevention.</p>
+    <div class="pipeline">
+      <div class="pipe-step">
+        <span class="pipe-icon">📡</span>
+        <div class="pipe-name">Raw ECG</div>
+        <div class="pipe-detail">Lead I · 100 Hz<br>z-score normalized</div>
       </div>
-      <div class="flow-finding"><strong>Finding:</strong> Active codes plateau at ~100–130 regardless of K. At K=1024, 87.5% of the codebook is permanently dead. Larger codebooks reconstruct marginally better but collapse harder — 128 dead codes at K=64, 896 dead codes at K=1024.</div>
-      <div class="flow-proposed"><strong>What this suggests:</strong> The problem is not insufficient capacity. The model is converging to a small stable set of codes early in training and never exploring the rest. Two possible fixes: (1) force the dead codes back to life through reinitialization, or (2) reduce EMA decay so the codebook adapts faster and does not lock in early winners.</div>
-      <div class="flow-outcome"><strong>Next:</strong> Exp 2 — test three reset strategies to see if dead codes can be revived.</div>
-    </div>
-
-    <div class="flow-connector"><span class="flow-connector-label">collapse confirmed → try reset</span></div>
-
-    <!-- EXP 2 -->
-    <div class="flow-node">
-      <div class="flow-node-header">
-        <span class="flow-exp-badge">Exp 2</span>
-        <span class="flow-exp-name">Codebook Reset Strategies (Random Restart, K-Means, Anchor)</span>
+      <div class="pipe-step">
+        <span class="pipe-icon">🧱</span>
+        <div class="pipe-name">Encoder</div>
+        <div class="pipe-detail">CNN → latent z<br>D = 64</div>
       </div>
-      <div class="flow-finding"><strong>Finding:</strong> All three reset strategies dramatically improved reconstruction (MSE dropped 35–45%). Active codes jumped from 96 to 343–395. But perplexity stayed highly skewed — usage distribution remained power-law. Reset revived dead codes but did not change the dynamics that killed them.</div>
-      <div class="flow-proposed"><strong>What this suggests:</strong> Reset is reactive, not preventative. The model still collapses toward the same dominant codes — it just gets nudged back periodically. K-Means Centroid Reset gives the best diversity (highest perplexity). The underlying objective still has no incentive to use all codes. Two open questions: (1) does EMA decay speed matter? (2) does the codebook size itself matter?</div>
-      <div class="flow-outcome"><strong>Next:</strong> Exp 12 — test reset at extreme K values to understand the capacity-utilization tradeoff. Exp 3 — tune EMA decay.</div>
-    </div>
-
-    <div class="flow-connector"><span class="flow-connector-label">reset helps but does not solve → test boundaries</span></div>
-
-    <!-- EXP 12 -->
-    <div class="flow-node">
-      <div class="flow-node-header">
-        <span class="flow-exp-badge">Exp 12</span>
-        <span class="flow-exp-name">Reset at K=128 and K=1024</span>
+      <div class="pipe-step highlight">
+        <span class="pipe-icon">📚</span>
+        <div class="pipe-name">RVQ Stage 1</div>
+        <div class="pipe-detail">K=256 codes<br>EMA γ=0.95</div>
       </div>
-      <div class="flow-finding"><strong>Finding:</strong> K=128 achieved 96.1% utilization — near-complete — but MSE=0.0760, worse than K=512. K=1024 had best MSE (0.0448) but visual inspection showed QRS peaks not reconstructed to scale — suspected overfitting. Low MSE is not evidence of a good model.</div>
-      <div class="flow-proposed"><strong>What this suggests:</strong> The codebook may simply be too large for the signal. K=128 forces utilization by leaving no room for dead codes. The signal might only naturally support ~120 separable patterns at this encoder resolution. K=512 is over-capacity. A hypothesis to test later: maybe the right answer is a smaller K, not a better reset strategy.</div>
-      <div class="flow-outcome"><strong>Next:</strong> Exp 3 — tune EMA decay as a training dynamics fix before concluding the problem is architectural.</div>
-    </div>
-
-    <div class="flow-connector"><span class="flow-connector-label">capacity ceiling hypothesis → tune training dynamics</span></div>
-
-    <div class="flow-phase-divider"><span class="flow-phase-label">Phase 2 — Ruling Out Simpler Explanations</span></div>
-
-    <!-- EXP 3 -->
-    <div class="flow-node">
-      <div class="flow-node-header">
-        <span class="flow-exp-badge">Exp 3</span>
-        <span class="flow-exp-name">EMA Decay Rate Sweep (γ = 0.90, 0.95, 0.99)</span>
+      <div class="pipe-step highlight">
+        <span class="pipe-icon">📚</span>
+        <div class="pipe-name">RVQ Stage 2</div>
+        <div class="pipe-detail">K=256 codes<br>residual input</div>
       </div>
-      <div class="flow-finding"><strong>Finding:</strong> EMA decay modulates collapse severity but does not eliminate it. γ=0.95 gives the best reconstruction (MSE=0.0500) with stable codebook dynamics. γ=0.99 is slow and stable but worse reconstruction. γ=0.90 is fast but noisy — fluctuating assignments. All three still show 23–27% dead codes.</div>
-      <div class="flow-proposed"><strong>What this suggests:</strong> EMA tuning is a dial, not a fix. The collapse ceiling persists regardless of decay speed. The next question: is this collapse driven by not enough data? If the model saw more diverse signals, would it naturally use more codes?</div>
-      <div class="flow-outcome"><strong>Decision:</strong> γ=0.95 fixed for all subsequent experiments. <strong>Next:</strong> Exp 4 — scale dataset from 1k to 10k to test whether data starvation is causing collapse.</div>
-    </div>
-
-    <div class="flow-connector"><span class="flow-connector-label">EMA not the fix → is it a data problem?</span></div>
-
-    <!-- EXP 4 -->
-    <div class="flow-node">
-      <div class="flow-node-header">
-        <span class="flow-exp-badge">Exp 4</span>
-        <span class="flow-exp-name">Data Scaling (1k → 2k → 5k → 10k records)</span>
+      <div class="pipe-step highlight">
+        <span class="pipe-icon">📚</span>
+        <div class="pipe-name">RVQ Stages 3–4</div>
+        <div class="pipe-detail">K=128, K=64<br>fine residuals</div>
       </div>
-      <div class="flow-finding"><strong>Finding:</strong> Reconstruction improved monotonically with data — MSE dropped from 0.0500 (1k) to 0.0354 (10k). But dead code % held flat at 21–29% across all dataset sizes. The model did not use more of its vocabulary when given more data.</div>
-      <div class="flow-proposed"><strong>What this suggests:</strong> Collapse is not a data starvation problem. It is an objective misalignment problem — the model has no incentive to use all codes. The loss function optimizes reconstruction, not diversity. This is the decisive ruling-out: more data helps MSE, not utilization. The fix must be architectural or objective-level.</div>
-      <div class="flow-outcome"><strong>Next:</strong> Exp 5 — try Residual VQ to distribute the representational burden across multiple codebooks, both improving reconstruction and potentially reducing per-stage collapse.</div>
-    </div>
-
-    <div class="flow-connector"><span class="flow-connector-label">not data → try multi-stage architecture</span></div>
-
-    <!-- EXP 5 -->
-    <div class="flow-node">
-      <div class="flow-node-header">
-        <span class="flow-exp-badge">Exp 5</span>
-        <span class="flow-exp-name">Residual Vector Quantization — 2/3/4 layers + K sweep</span>
+      <div class="pipe-step">
+        <span class="pipe-icon">🔧</span>
+        <div class="pipe-name">Decoder</div>
+        <div class="pipe-detail">Reconstruct from<br>summed quantized</div>
       </div>
-      <div class="flow-finding"><strong>Finding:</strong> RVQ-4 at K=512 achieved MSE=0.0063 — an 87% improvement over single-stage VQ. Each stage captures what the previous missed. But dead codes persisted at 22–32% across all depths — distributed across stages, not eliminated. K=128 per stage hit ~94–95% utilization, revealing that ~120 active codes is the natural ceiling per stage at this encoder resolution. K=256 was the best tradeoff: 82–88% utilization with competitive MSE.</div>
-      <div class="flow-proposed"><strong>What this suggests:</strong> RVQ is the right structural choice for reconstruction. The capacity ceiling (~120 active codes/stage) is a real property of the signal, not a training artifact. The collapse persisting at K=512 means the codebook has 4× more entries than the signal can fill. Logical next step: try objective-level fixes — entropy regularization, usage penalties, soft assignments — to force the model to distribute assignments more evenly.</div>
-      <div class="flow-outcome"><strong>Next:</strong> Exp 13, 14, 15 — regularization approaches targeting objective misalignment.</div>
-    </div>
-
-    <div class="flow-connector"><span class="flow-connector-label">RVQ adopted → try regularization to fix remaining collapse</span></div>
-
-    <div class="flow-phase-divider"><span class="flow-phase-label">Phase 3 — Why Regularization Fails</span></div>
-
-    <!-- EXP 13 -->
-    <div class="flow-node">
-      <div class="flow-node-header">
-        <span class="flow-exp-badge">Exp 13</span>
-        <span class="flow-exp-name">Entropy Regularization (λ = 0.01, 0.1)</span>
+      <div class="pipe-step">
+        <span class="pipe-icon">🔤</span>
+        <div class="pipe-name">Token Sequence</div>
+        <div class="pipe-detail">Discrete codes →<br>LLM input</div>
       </div>
-      <div class="flow-finding"><strong>Finding:</strong> Entropy regularization made reconstruction worse — MSE rose to 0.0106–0.0123 vs 0.0063 baseline. At λ=0.1, entropy term contributed ~100× the reconstruction loss by mid-training, causing VQ loss to climb monotonically. Active codes barely improved (barely 1–2% reduction in dead %).</div>
-      <div class="flow-proposed"><strong>Why it failed:</strong> Entropy acts on soft assignment probabilities through the encoder. But codebook updates use hard argmin. A dead code that never wins a hard assignment receives no EMA update regardless of its soft probability — entropy cannot reach dead codes by design. The soft and hard assignment geometries are incompatible.</div>
-      <div class="flow-outcome fail"><strong>Verdict: Failed.</strong> Mechanism mismatch — cannot revive dead codes through soft signals when updates are hard. Next: try penalizing overused codes directly.</div>
     </div>
 
-    <div class="flow-connector"><span class="flow-connector-label">entropy fails → try direct usage penalty</span></div>
-
-    <!-- EXP 14 -->
-    <div class="flow-node">
-      <div class="flow-node-header">
-        <span class="flow-exp-badge">Exp 14</span>
-        <span class="flow-exp-name">Usage Penalty / Frequency Balancing (α = 0.01 → 1.0)</span>
+    <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--heading);margin:2.5rem 0 0.5rem;">Codebook health states</h3>
+    <p style="font-size:0.875rem;color:var(--muted);margin-bottom:1.25rem;">Four measurable states interpret the joint signal of MSE, Dead Code %, and Perplexity.</p>
+    <div class="states-grid">
+      <div class="state-card">
+        <div class="state-header">
+          <span class="state-indicator" style="background:#059669;"></span>Healthy Representation
+        </div>
+        <div class="state-vals">
+          <span>MSE ↓ low</span>
+          <span>Dead Code % ↓ low</span>
+          <span>Perplexity ↑ high</span>
+        </div>
+        <div class="state-desc">Codebook is fully utilized, reconstruction is accurate, and codes are evenly distributed across ECG patterns.</div>
       </div>
-      <div class="flow-finding"><strong>Finding:</strong> More stable than entropy reg — MSE held at 0.0065–0.0089. Perplexity improved slightly. But dead code % changed by only 1–3 percentage points across all α values. α=0.1 and α=1.0 differed by only 2 active codes at Stage 4.</div>
-      <div class="flow-proposed"><strong>Why it failed:</strong> Usage penalties discourage dominant codes but do not explicitly activate dead ones. The model redistributed assignments among already-active codes rather than exploring dead regions. Dead codes are not merely unpopular — they are unreachable given the encoder geometry. Penalizing the popular codes does not change where the encoder maps its outputs.</div>
-      <div class="flow-outcome fail"><strong>Verdict: Marginal, not sufficient.</strong> Redistributes active codes only. Does not expand into dead regions. Next: try soft assignments to smooth early-training dynamics before codes lock in.</div>
-    </div>
-
-    <div class="flow-connector"><span class="flow-connector-label">usage penalty insufficient → try soft assignments</span></div>
-
-    <!-- EXP 15 -->
-    <div class="flow-node">
-      <div class="flow-node-header">
-        <span class="flow-exp-badge">Exp 15</span>
-        <span class="flow-exp-name">Temperature / Soft Assignments (T = 0.1 → 2.0)</span>
+      <div class="state-card">
+        <div class="state-header">
+          <span class="state-indicator" style="background:#DC2626;"></span>Codebook Collapse
+        </div>
+        <div class="state-vals">
+          <span>MSE ↑ high</span>
+          <span>Dead Code % ↑ high</span>
+          <span>Perplexity ↓ low</span>
+        </div>
+        <div class="state-desc">Most codes are inactive. Reconstruction fails. The model has collapsed to a small subset of the codebook.</div>
       </div>
-      <div class="flow-finding"><strong>Finding:</strong> Catastrophic failure at all temperatures in multi-stage RVQ. Low T (0.1, 0.5): Stage 1 healthy, Stages 2–4 collapsed to 86–95% dead — soft Stage 1 absorbed too much signal, leaving near-zero residuals for downstream stages. High T (1.0, 2.0): everything collapsed, MSE=0.0656–0.0758. One earlier implementation hit perplexity=1 with a single active code.</div>
-      <div class="flow-proposed"><strong>Why it failed:</strong> Soft assignments are fundamentally incompatible with EMA-based multi-stage RVQ. Stage boundaries require hard commitments — each stage needs a clean residual to work with. When Stage 1 uses soft assignments, it captures everything, leaving nothing meaningful for Stages 2–4.</div>
-      <div class="flow-outcome fail"><strong>Verdict: Failed completely.</strong> All three regularization approaches failed for the same underlying reason — they treat collapse as a distributional problem in the loss landscape. The binding constraint is structural: the capacity ceiling and stage hierarchy cannot be regularized away. The solution must come from the architecture.</div>
-    </div>
-
-    <div class="flow-connector"><span class="flow-connector-label">all regularization failed → architecture is the only fix</span></div>
-
-    <div class="flow-phase-divider"><span class="flow-phase-label">Phase 4 — Architectural Resolution</span></div>
-
-    <!-- EXP 16 -->
-    <div class="flow-node">
-      <div class="flow-node-header">
-        <span class="flow-exp-badge">Exp 16</span>
-        <span class="flow-exp-name">NS-VQ + Warm-Start + Stage-Specific K=[256,256,128,64]</span>
+      <div class="state-card">
+        <div class="state-header">
+          <span class="state-indicator" style="background:#D97706;"></span>Forced Activation
+        </div>
+        <div class="state-vals">
+          <span>MSE — variable</span>
+          <span>Dead Code % ↓ low (forced)</span>
+          <span>Perplexity — artificial</span>
+        </div>
+        <div class="state-desc">Interventions like centroid reset activate dead codes artificially, but the underlying capacity ceiling may still exist.</div>
       </div>
-      <div class="flow-finding"><strong>Finding:</strong> First configuration to satisfy all three viability criteria simultaneously. Stage 4: 63/64 active codes (1.6% dead). Full stack MSE=0.0058 — matching pre-NS-VQ baseline while using 31% fewer codebook entries. Stage 2 remained at ~22% dead — confirmed structural, not optimization failure.</div>
-      <div class="flow-proposed"><strong>Why it worked:</strong> Three problems required three separate fixes. (1) Warm-start (k-means++) addresses early training instability — codebook geometry is aligned to the data before any EMA updates occur. (2) NS-VQ neighbor update addresses gradient starvation — nearby unused codes receive decayed updates when a winner is selected. (3) Stage-specific K addresses hierarchy mismatch — K is matched to what each stage's residuals can actually support, rather than forcing uniform capacity.</div>
-      <div class="flow-outcome"><strong>Verdict: Success.</strong> First config meeting all criteria. Phase 1 complete. <strong>Next:</strong> Exp 6 — optimize latent dimension D independently, then Phase 2 begins.</div>
-    </div>
-
-    <div class="flow-connector"><span class="flow-connector-label">architecture works → optimize remaining hyperparameter</span></div>
-
-    <!-- EXP 6 -->
-    <div class="flow-node">
-      <div class="flow-node-header">
-        <span class="flow-exp-badge">Exp 6</span>
-        <span class="flow-exp-name">Latent Dimension D Sweep (32, 64, 128)</span>
+      <div class="state-card">
+        <div class="state-header">
+          <span class="state-indicator" style="background:#7C3AED;"></span>Over-Compression
+        </div>
+        <div class="state-vals">
+          <span>MSE ↑ high (floor)</span>
+          <span>Dead Code % ↓ low</span>
+          <span>Perplexity ↑ high</span>
+        </div>
+        <div class="state-desc">Codes are used but reconstruction quality saturates. The codebook capacity is insufficient relative to ECG signal complexity.</div>
       </div>
-      <div class="flow-finding"><strong>Finding:</strong> D=64 optimal — best reconstruction (MSE=0.0056, val loss=0.005178). D=128 degraded both MSE and utilization despite larger capacity — Stage 2 dead codes rose to 27%. D=32 was surprisingly competitive (MSE=0.0059), suggesting ECG morphology lies on a low-dimensional latent manifold.</div>
-      <div class="flow-proposed"><strong>Why D=128 failed:</strong> Larger embedding dimensions expand the residual search space, making quantization harder for fixed-size codebooks. Quantization efficiency — not encoder expressivity — becomes the bottleneck at high D. The encoder can represent more with D=128, but the codebook cannot reliably partition the larger space.</div>
-      <div class="flow-outcome"><strong>Decision:</strong> D=64 fixed as final embedding dimension. Phase 1 architecture is fully determined. All components locked: RVQ-4, K=[256,256,128,64], D=64, γ=0.95, k-means++ warm-start, K-Means reset, hard assignments, NS-VQ update.</div>
     </div>
-
   </div>
+</section>
 
-  <div class="insight" style="margin-top:28px"><strong>The thread across all 16 experiments:</strong> Exp 1 revealed collapse. Exp 2 and 12 showed reset helps but does not solve it. Exp 3 and 4 ruled out EMA and data as root causes. Exp 5 established RVQ as the architecture. Exp 13–15 proved regularization cannot fix structural collapse. Exp 16 resolved all three failure modes through architecture. Exp 6 finalized the last hyperparameter. Every experiment's result directly caused the next one to exist.</div>
-</div>
-
-<!-- EXPERIMENTS -->
-<div class="section">
-  <div class="section-title">Experiment Log</div>
-
-  <!-- EXP 1 -->
-  <div class="exp-card" id="exp1">
-    <div class="exp-header" onclick="toggle('exp1')">
-      <span class="exp-num">Exp 1</span>
-      <span class="exp-title-text">Effect of Codebook Size (K) on Reconstruction Quality</span>
-      <span class="exp-status status-done">✓ Complete</span>
-      <span class="exp-toggle">▼</span>
-    </div>
-    <div class="exp-body open">
-      <div class="info-row">
-        <div class="info-box"><div class="info-box-label">Objective</div><div class="info-box-value">Determine how codebook size K affects reconstruction quality and utilization in a VQ-VAE trained on ECG.</div></div>
-        <div class="info-box"><div class="info-box-label">Hypothesis</div><div class="info-box-value">Larger K will lower MSE but show diminishing returns. Active codes will not scale proportionally with K due to collapse.</div></div>
-        <div class="info-box"><div class="info-box-label">Variables</div><div class="info-box-value">K ∈ {64, 128, 512, 1024}<br>D=64, γ=0.99, 1k records, 20 epochs, no reset</div></div>
-        <div class="info-box"><div class="info-box-label">Motivating Question</div><div class="info-box-value">What is the baseline reconstruction ceiling? Is collapse present from the start?</div></div>
+<!-- FINDINGS -->
+<section id="findings">
+  <div class="container">
+    <div class="section-eyebrow">Phase 1 — 16 experiments</div>
+    <h2 class="section-title">Three root causes of codebook collapse</h2>
+    <p class="section-sub">Experiments ruled out naive fixes — entropy regularization, usage penalties, soft assignments — and converged on three structural causes specific to ECG signals.</p>
+    <div class="findings-grid">
+      <div class="finding-card">
+        <div class="finding-num">Cause 1</div>
+        <div class="finding-title">Training dynamics & objective misalignment</div>
+        <div class="finding-body">Early training instability causes encoder outputs to cluster, making most codebook entries unreachable. Standard regularization methods redistribute active codes but don't address the structural cause — EMA with k-means++ warm-start corrects this at initialization.</div>
+        <span class="finding-tag tag-green">Fixed: EMA + k-means++</span>
       </div>
-      <table class="data-table">
-        <thead><tr><th>K</th><th>Mean MSE</th><th>Perplexity</th><th>Active Codes</th><th>Dead Codes %</th></tr></thead>
-        <tbody>
-          <tr><td>64</td><td>0.1338</td><td>16.7</td><td>26/64</td><td class="val-bad">59.4%</td></tr>
-          <tr><td>128</td><td>0.1171</td><td>23.7</td><td>35/128</td><td class="val-bad">72.7%</td></tr>
-          <tr><td>512</td><td>0.0966</td><td>62.9</td><td>96/512</td><td class="val-bad">81.2%</td></tr>
-          <tr><td>1024</td><td>0.0876</td><td>91.9</td><td>128/1024</td><td class="val-bad">87.5%</td></tr>
-        </tbody>
-      </table>
-      <div class="insight"><strong>Primary finding:</strong> Active codes saturated at ~100–130 regardless of K. At K=1024, 87.5% of the codebook is permanently dead. The model converges to an effective vocabulary of ~128 entries regardless of configured K. Increasing capacity does not help — it makes collapse worse.</div>
-      <div class="conclusion"><strong>Decision:</strong> Collapse is the dominant failure mode. The problem is not insufficient capacity — it is inefficient use of available capacity. K=512 chosen as working baseline. Next: test whether reset strategies can revive dead codes.</div>
-    </div>
-  </div>
-
-  <!-- EXP 2 -->
-  <div class="exp-card" id="exp2">
-    <div class="exp-header" onclick="toggle('exp2')">
-      <span class="exp-num">Exp 2</span>
-      <span class="exp-title-text">Codebook Reset Strategies — Dead Code Revival</span>
-      <span class="exp-status status-done">✓ Complete</span>
-      <span class="exp-toggle">▼</span>
-    </div>
-    <div class="exp-body">
-      <div class="info-row">
-        <div class="info-box"><div class="info-box-label">Objective</div><div class="info-box-value">Determine whether periodically reinitializing dead codebook entries reduces collapse and improves utilization.</div></div>
-        <div class="info-box"><div class="info-box-label">Hypothesis</div><div class="info-box-value">Reset every N batches will increase active codes, raise perplexity, and improve MSE without hurting reconstruction.</div></div>
-        <div class="info-box"><div class="info-box-label">Variables</div><div class="info-box-value">3 strategies: Random Restart, K-Means Centroid Reset, Anchor Resampling<br>K=512, γ=0.99, 1k records</div></div>
-        <div class="info-box"><div class="info-box-label">Motivated by</div><div class="info-box-value">Exp 1 — 87.5% dead codes at K=1024 confirmed collapse as dominant failure mode.</div></div>
+      <div class="finding-card">
+        <div class="finding-num">Cause 2</div>
+        <div class="finding-title">Data-driven capacity ceiling (~120 active codes)</div>
+        <div class="finding-body">PTB-XL Lead I signals contain a bounded number of distinguishable ECG morphologies. At 64-dimensional latent space, each stage saturates at approximately 120 active codes regardless of K, reflecting the intrinsic information content of the signal — not an optimization failure.</div>
+        <span class="finding-tag tag-blue">Insight: biological limit</span>
       </div>
-      <table class="data-table">
-        <thead><tr><th>Strategy</th><th>Mean MSE</th><th>Perplexity</th><th>Active Codes</th><th>Dead Codes %</th></tr></thead>
-        <tbody>
-          <tr><td>Random Restart</td><td>0.0625</td><td>314.8</td><td>395/512</td><td>22.9%</td></tr>
-          <tr><td class="val-good">K-Means Centroid Reset</td><td class="val-good">0.0565</td><td class="val-good">319.8</td><td>389/512</td><td>24.0%</td></tr>
-          <tr><td>Anchor Resampling</td><td>0.0555</td><td class="val-bad">262.5</td><td class="val-bad">343/512</td><td class="val-bad">33.0%</td></tr>
-        </tbody>
-      </table>
-      <div class="insight"><strong>Key insight:</strong> High activation count ≠ healthy codebook. Anchor Resampling achieved best MSE but worst perplexity and fewest active codes. K-Means Centroid Reset provided the best balance. Active codes ≠ diverse usage — perplexity is the more reliable signal.</div>
-      <div class="warning-box"><strong>Important:</strong> All strategies reduced MSE by 35–45% vs Exp 1 baseline. But usage remained skewed — power-law distribution persisted. Reset strategies are reactive, not preventative. They revive codes but do not change underlying dynamics.</div>
-      <div class="conclusion"><strong>Decision:</strong> K-Means Centroid Reset chosen as default strategy for all subsequent experiments. Collapse is a training dynamics problem, not a capacity problem.</div>
-    </div>
-  </div>
-
-  <!-- EXP 12 -->
-  <div class="exp-card" id="exp12">
-    <div class="exp-header" onclick="toggle('exp12')">
-      <span class="exp-num">Exp 12</span>
-      <span class="exp-title-text">Codebook Reset at K=1024 and K=128</span>
-      <span class="exp-status status-done">✓ Complete</span>
-      <span class="exp-toggle">▼</span>
-    </div>
-    <div class="exp-body">
-      <div class="info-row">
-        <div class="info-box"><div class="info-box-label">Objective</div><div class="info-box-value">Verify whether K-Means reset resolves collapse at extreme codebook sizes (very large and very small).</div></div>
-        <div class="info-box"><div class="info-box-label">Variables</div><div class="info-box-value">K ∈ {128, 512, 1024}<br>K-Means Centroid Reset, γ=0.99, 1k records</div></div>
+      <div class="finding-card">
+        <div class="finding-num">Cause 3</div>
+        <div class="finding-title">Stage hierarchy mismatch in residual quantization</div>
+        <div class="finding-body">Early RVQ stages receive the full signal; later stages receive only residuals. Uniform K across stages wastes capacity — later stages only need fine-grained codes. Stage-specific K=[256,256,128,64] aligns codebook size to the expected residual entropy at each level.</div>
+        <span class="finding-tag tag-teal">Fixed: stage-specific K</span>
       </div>
-      <table class="data-table">
-        <thead><tr><th>K</th><th>Mean MSE</th><th>Perplexity</th><th>Active Codes</th><th>Dead Codes %</th></tr></thead>
-        <tbody>
-          <tr><td>128</td><td class="val-bad">0.0760</td><td>92.5</td><td class="val-good">123/128</td><td class="val-good">3.9%</td></tr>
-          <tr><td>512</td><td>0.0565</td><td>319.8</td><td>389/512</td><td>24.0%</td></tr>
-          <tr><td>1024</td><td class="val-good">0.0448</td><td>507.3</td><td>583/1024</td><td class="val-bad">43.1%</td></tr>
-        </tbody>
-      </table>
-      <div class="insight"><strong>K=128 result:</strong> Near-complete utilization (96.1%) but poor reconstruction — codebook too small to represent signal fidelity. K=1024 suspected overfitting — visual inspection showed QRS peaks not reconstructed to scale. Low MSE is not sufficient evidence of a good model.</div>
-      <div class="conclusion"><strong>Hypothesis formed:</strong> The signal may only naturally support ~120 separable patterns at this encoder resolution. The codebook may simply be too large for the data's intrinsic structure. This hypothesis is tested definitively in Exp 5.</div>
     </div>
-  </div>
 
-  <!-- EXP 3 -->
-  <div class="exp-card" id="exp3">
-    <div class="exp-header" onclick="toggle('exp3')">
-      <span class="exp-num">Exp 3</span>
-      <span class="exp-title-text">EMA Decay Rate (γ) Sweep</span>
-      <span class="exp-status status-done">✓ Complete</span>
-      <span class="exp-toggle">▼</span>
-    </div>
-    <div class="exp-body">
-      <div class="info-row">
-        <div class="info-box"><div class="info-box-label">Objective</div><div class="info-box-value">Determine optimal EMA decay value — faster decay means codebook adapts more quickly to new assignments.</div></div>
-        <div class="info-box"><div class="info-box-label">Variables</div><div class="info-box-value">γ ∈ {0.90, 0.95, 0.99}<br>K=512, K-Means Reset, 1k records</div></div>
+    <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--heading);margin:2.75rem 0 0.5rem;">Why regularization failed</h3>
+    <p style="font-size:0.875rem;color:var(--muted);margin-bottom:1.25rem;">Three intuitive approaches were tested and ruled out structurally.</p>
+    <table class="token-table">
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Idea</th>
+          <th>Why it failed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Entropy regularization</strong></td>
+          <td>Penalize uneven code usage in loss</td>
+          <td>Soft optimization target; hard collapse already entrenched by the time penalty fires</td>
+        </tr>
+        <tr>
+          <td><strong>Usage penalty</strong></td>
+          <td>Discourage over-used codes</td>
+          <td>Only redistributes active codes — doesn't revive dead ones or increase total active count</td>
+        </tr>
+        <tr>
+          <td><strong>Soft assignments</strong></td>
+          <td>Assign input to top-k codes with weights</td>
+          <td>Destroys hard discretization; inter-stage residuals lose meaning in later RVQ stages</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- PHASE 2 -->
+<section id="phase2" style="background:var(--bg2);">
+  <div class="container">
+    <div class="section-eyebrow">What comes next</div>
+    <h2 class="section-title">Phase 2 roadmap</h2>
+    <p class="section-sub">With a stable tokenizer established, the next phase connects ECG tokens to language model architectures and clinical downstream tasks.</p>
+    <div class="roadmap">
+      <div class="roadmap-item">
+        <div class="roadmap-num">01</div>
+        <div>
+          <div class="roadmap-title">ECG–Text alignment via contrastive pretraining</div>
+          <div class="roadmap-body">Joint embedding space for ECG token sequences and clinical text reports. Validated using UMAP visualization of cross-modal embeddings from PTB-XL diagnostic labels.</div>
+        </div>
       </div>
-      <table class="data-table">
-        <thead><tr><th>γ</th><th>Mean MSE</th><th>Perplexity</th><th>Active Codes</th><th>Dead %</th><th>Stability</th></tr></thead>
-        <tbody>
-          <tr><td>0.90</td><td>0.0544</td><td>348.5</td><td>372/512</td><td>27.3%</td><td class="val-bad">Noisy/fluctuating</td></tr>
-          <tr><td class="val-good">0.95</td><td class="val-good">0.0500</td><td>355.0</td><td>375/512</td><td>26.8%</td><td class="val-good">Stable + balanced</td></tr>
-          <tr><td>0.99</td><td class="val-bad">0.0595</td><td class="val-good">404.1</td><td class="val-good">390/512</td><td class="val-good">23.8%</td><td>Slow but stable</td></tr>
-        </tbody>
-      </table>
-      <div class="insight"><strong>Finding:</strong> EMA decay does not eliminate collapse — it modulates its severity. γ=0.95 achieves the best reconstruction while maintaining stable codebook dynamics. γ=0.99 has higher utilization but worse reconstruction — slow adaptation means the encoder cannot specialize codes quickly enough. γ=0.90 is unstable.</div>
-      <div class="conclusion"><strong>Decision:</strong> γ=0.95 fixed as default for all subsequent experiments. Best balance between adaptation speed and stability.</div>
-    </div>
-  </div>
-
-  <!-- EXP 4 -->
-  <div class="exp-card" id="exp4">
-    <div class="exp-header" onclick="toggle('exp4')">
-      <span class="exp-num">Exp 4</span>
-      <span class="exp-title-text">Data Scaling — 1k → 10k Records</span>
-      <span class="exp-status status-done">✓ Complete</span>
-      <span class="exp-toggle">▼</span>
-    </div>
-    <div class="exp-body">
-      <div class="info-row">
-        <div class="info-box"><div class="info-box-label">Objective</div><div class="info-box-value">Confirm whether codebook collapse is caused by data starvation rather than training dynamics.</div></div>
-        <div class="info-box"><div class="info-box-label">Variables</div><div class="info-box-value">N ∈ {1k, 2k, 5k, 10k} records<br>K=512, γ=0.95, K-Means Reset</div></div>
+      <div class="roadmap-item">
+        <div class="roadmap-num">02</div>
+        <div>
+          <div class="roadmap-title">Generative ECG language modeling</div>
+          <div class="roadmap-body">Autoregressive transformer trained on ECG token sequences. Enables conditional generation: given patient history tokens, generate plausible future ECG token sequences.</div>
+        </div>
       </div>
-      <table class="data-table">
-        <thead><tr><th>Dataset</th><th>Mean MSE</th><th>Perplexity</th><th>Active Codes</th><th>Dead %</th><th>Convergence Epoch</th></tr></thead>
-        <tbody>
-          <tr><td>1k</td><td>0.0500</td><td>355.0</td><td>375/512</td><td>26.8%</td><td>~17–20</td></tr>
-          <tr><td>2k</td><td>0.0415</td><td>291.0</td><td>363/512</td><td>29.1%</td><td>~20–25</td></tr>
-          <tr><td>5k</td><td>0.0376</td><td>334.0</td><td>401/512</td><td>21.7%</td><td>~13–17</td></tr>
-          <tr><td>10k</td><td class="val-good">0.0354</td><td>324.5</td><td>398/512</td><td>22.3%</td><td>~15–20</td></tr>
-        </tbody>
-      </table>
-      <div class="insight"><strong>Decisive finding:</strong> Reconstruction improved monotonically with data scale. Codebook utilization remained completely unchanged — dead codes held at 21–29% across all dataset sizes. The model does not use more vocabulary when given more data. This rules out data starvation as a cause of collapse.</div>
-      <div class="conclusion"><strong>Conclusion:</strong> Codebook collapse is not a data problem. More data gives the model more signal to reconstruct, but not more incentive to distribute assignments across the codebook. The root cause is the training objective — the model has no reason to use all codes. This points to regularization-based interventions next.</div>
-    </div>
-  </div>
-
-  <!-- EXP 5 -->
-  <div class="exp-card" id="exp5">
-    <div class="exp-header" onclick="toggle('exp5')">
-      <span class="exp-num">Exp 5</span>
-      <span class="exp-title-text">Residual Vector Quantization — 2/3/4 Layers + K Sweep</span>
-      <span class="exp-status status-done">✓ Complete</span>
-      <span class="exp-toggle">▼</span>
-    </div>
-    <div class="exp-body">
-      <div class="info-row">
-        <div class="info-box"><div class="info-box-label">Objective</div><div class="info-box-value">Determine whether stacking VQ layers — each quantizing the residual of the previous — improves reconstruction and resolves collapse.</div></div>
-        <div class="info-box"><div class="info-box-label">Variables</div><div class="info-box-value">Layers ∈ {2,3,4}, K ∈ {128,256,512}<br>γ=0.95, K-Means Reset, 1k records</div></div>
+      <div class="roadmap-item">
+        <div class="roadmap-num">03</div>
+        <div>
+          <div class="roadmap-title">Downstream classification from token sequences</div>
+          <div class="roadmap-body">Evaluate whether token-sequence representations achieve competitive diagnostic accuracy on PTB-XL classification benchmarks vs. continuous signal baselines.</div>
+        </div>
       </div>
-      <p style="margin-bottom:8px;color:var(--text2);font-size:13px;font-weight:600;">RVQ Depth Sweep (K=512/stage):</p>
-      <table class="data-table">
-        <thead><tr><th>Config</th><th>Stage</th><th>Residual MSE</th><th>Mean MSE</th><th>Active Codes</th><th>Dead %</th></tr></thead>
-        <tbody>
-          <tr><td>VQ-VAE (1)</td><td>—</td><td>0.1675</td><td>0.0526</td><td>377/512</td><td>26.4%</td></tr>
-          <tr><td>RVQ-2</td><td>2</td><td>0.0299</td><td>0.0194</td><td>368/512</td><td>28.1%</td></tr>
-          <tr><td>RVQ-3</td><td>3</td><td>0.0102</td><td>0.0099</td><td>395/512</td><td>22.9%</td></tr>
-          <tr><td class="val-good">RVQ-4</td><td>4</td><td class="val-good">0.0050</td><td class="val-good">0.0063</td><td>398/512</td><td>22.3%</td></tr>
-        </tbody>
-      </table>
-      <p style="margin-bottom:8px;margin-top:20px;color:var(--text2);font-size:13px;font-weight:600;">4-Layer K Sweep:</p>
-      <table class="data-table">
-        <thead><tr><th>K/stage</th><th>Mean MSE</th><th>Avg Dead % (all stages)</th><th>Stage 1 Active</th><th>Stage 4 Active</th></tr></thead>
-        <tbody>
-          <tr><td>512</td><td class="val-good">0.0063</td><td class="val-bad">~27%</td><td>349/512</td><td>398/512</td></tr>
-          <tr><td class="val-good">256</td><td>0.0083</td><td class="val-neutral">~16%</td><td>214/256</td><td>226/256</td></tr>
-          <tr><td>128</td><td class="val-bad">0.0115</td><td class="val-good">~6%</td><td>121/128</td><td>119/128</td></tr>
-        </tbody>
-      </table>
-      <div class="insight"><strong>Key finding on K=128:</strong> Near-complete utilization confirms the ECG signal under this encoder naturally supports ~120 separable patterns per RVQ stage. K=512 has over 4× that capacity — that is structurally why ~27% stays dead regardless of intervention. K=256 is the healthiest tradeoff: 82–88% utilization per stage with competitive reconstruction.</div>
-      <div class="insight"><strong>Later stages recover:</strong> Stage 1 of 4-layer RVQ has worst utilization (31.8% dead), Stage 4 recovers to 22.3%. This pattern — later stages better utilized — becomes a key diagnostic throughout Phase 3 and 4.</div>
-      <div class="conclusion"><strong>Decision:</strong> RVQ-4 adopted as architecture. K=256 as stable reference baseline alongside K=512. Dead codes are persistent and structural — next step is regularization interventions targeting the objective misalignment.</div>
-    </div>
-  </div>
-
-  <!-- EXP 13 -->
-  <div class="exp-card" id="exp13">
-    <div class="exp-header" onclick="toggle('exp13')">
-      <span class="exp-num">Exp 13</span>
-      <span class="exp-title-text">Entropy Regularization</span>
-      <span class="exp-status status-done">✓ Complete</span>
-      <span class="exp-toggle">▼</span>
-    </div>
-    <div class="exp-body">
-      <div class="info-row">
-        <div class="info-box"><div class="info-box-label">Objective</div><div class="info-box-value">Test whether adding an entropy-based loss term incentivizes uniform code usage and reduces collapse.</div></div>
-        <div class="info-box"><div class="info-box-label">Variables</div><div class="info-box-value">λ ∈ {0.01, 0.1}<br>RVQ-4, K=512, γ=0.95, K-Means Reset</div></div>
+      <div class="roadmap-item">
+        <div class="roadmap-num">04</div>
+        <div>
+          <div class="roadmap-title">Extension to multi-lead and multi-modal signals</div>
+          <div class="roadmap-body">Generalize the tokenization architecture to all 12 leads and explore cross-signal alignment with EEG and PPG — toward a unified physiological signal language.</div>
+        </div>
       </div>
-      <table class="data-table">
-        <thead><tr><th>λ</th><th>Stage 4 MSE</th><th>Stage 4 Active</th><th>Stage 4 Dead %</th><th>Stage 4 Perp.</th></tr></thead>
-        <tbody>
-          <tr><td>Baseline</td><td class="val-good">0.0063</td><td>398/512</td><td>22.3%</td><td>332.9</td></tr>
-          <tr><td>0.01</td><td class="val-bad">0.0106</td><td>404/512</td><td>21.1%</td><td>340.0</td></tr>
-          <tr><td>0.1</td><td class="val-bad">0.0123</td><td>408/512</td><td class="val-neutral">20.3%</td><td>340.2</td></tr>
-        </tbody>
-      </table>
-      <div class="warning-box"><strong>Failed — here's why:</strong> At λ=0.1 the entropy term contributed ~2.4 to total loss — roughly 100× the reconstruction loss by mid-training. VQ loss climbed monotonically from 0.007 to 0.068. The mechanism mismatch: entropy acts on soft assignment probabilities through the encoder, but codebook updates use hard argmin. A dead code that never wins a hard assignment receives no EMA update regardless of its soft probability. Entropy cannot revive dead codes by design.</div>
-      <div class="conclusion"><strong>Conclusion:</strong> Entropy regularization is theoretically motivated but practically ineffective in this setting. Its role, if any, is limited to weak early-stage stabilization. K-Means Centroid Reset remains the only mechanism that directly revives dead codes.</div>
     </div>
   </div>
+</section>
 
-  <!-- EXP 14 -->
-  <div class="exp-card" id="exp14">
-    <div class="exp-header" onclick="toggle('exp14')">
-      <span class="exp-num">Exp 14</span>
-      <span class="exp-title-text">Usage Penalty / Frequency Balancing</span>
-      <span class="exp-status status-done">✓ Complete</span>
-      <span class="exp-toggle">▼</span>
-    </div>
-    <div class="exp-body">
-      <div class="info-row">
-        <div class="info-box"><div class="info-box-label">Objective</div><div class="info-box-value">Penalize overused codes to force exploration of underutilized regions of the codebook.</div></div>
-        <div class="info-box"><div class="info-box-label">Variables</div><div class="info-box-value">α ∈ {0.01, 0.1, 0.5, 1.0}<br>RVQ-4, K=512, γ=0.95, λ=0</div></div>
-      </div>
-      <table class="data-table">
-        <thead><tr><th>α</th><th>Mean MSE</th><th>Stage 4 Active</th><th>Stage 4 Dead %</th><th>Stage 4 Perp.</th></tr></thead>
-        <tbody>
-          <tr><td>Baseline</td><td class="val-good">0.0063</td><td>398/512</td><td>22.3%</td><td>332.9</td></tr>
-          <tr><td>0.01</td><td class="val-good">0.0066</td><td>388/512</td><td>24.2%</td><td>331.7</td></tr>
-          <tr><td>0.1</td><td>0.0089</td><td>400/512</td><td>21.9%</td><td>329.2</td></tr>
-          <tr><td>0.5</td><td class="val-good">0.0065</td><td>384/512</td><td>25.0%</td><td>322.3</td></tr>
-          <tr><td>1.0</td><td class="val-good">0.0067</td><td>402/512</td><td>21.5%</td><td>337.1</td></tr>
-        </tbody>
-      </table>
-      <div class="insight"><strong>Finding:</strong> Usage penalties redistributed assignments among already-active codes rather than expanding into dead regions. α=0.1 and α=1.0 differed by only 2 active codes at Stage 4 — the effect saturated immediately. Dominant codes became slightly less dominant, but inactive codes still received no meaningful updates.</div>
-      <div class="conclusion"><strong>Conclusion:</strong> More stable than entropy regularization (MSE largely preserved), but does not significantly reduce dead codes. Discouraging dominant codes is insufficient on its own — effective utilization improvement requires mechanisms that explicitly revive or redistribute inactive entries.</div>
-    </div>
-  </div>
-
-  <!-- EXP 15 -->
-  <div class="exp-card" id="exp15">
-    <div class="exp-header" onclick="toggle('exp15')">
-      <span class="exp-num">Exp 15</span>
-      <span class="exp-title-text">Temperature / Soft Assignments</span>
-      <span class="exp-status status-done">✓ Complete</span>
-      <span class="exp-toggle">▼</span>
-    </div>
-    <div class="exp-body">
-      <div class="info-row">
-        <div class="info-box"><div class="info-box-label">Objective</div><div class="info-box-value">Replace hard nearest-neighbor assignment with temperature-scaled softmax to encourage exploration during early training.</div></div>
-        <div class="info-box"><div class="info-box-label">Variables</div><div class="info-box-value">T ∈ {0.1, 0.5, 1.0, 2.0}<br>RVQ-4, K=512, γ=0.95, α=0, λ=0</div></div>
-      </div>
-      <table class="data-table">
-        <thead><tr><th>T</th><th>Mean MSE</th><th>Stage 1 Dead %</th><th>Stages 2–4 Dead %</th><th>Outcome</th></tr></thead>
-        <tbody>
-          <tr><td>0.1</td><td>0.0568</td><td>22.9%</td><td class="val-bad">86–95%</td><td class="val-bad">Stage collapse</td></tr>
-          <tr><td>0.5</td><td>0.0559</td><td>25.2%</td><td class="val-bad">86–95%</td><td class="val-bad">Stage collapse</td></tr>
-          <tr><td>1.0</td><td class="val-bad">0.0656</td><td class="val-bad">36.3%</td><td class="val-bad">High</td><td class="val-bad">Full collapse</td></tr>
-          <tr><td>2.0</td><td class="val-bad">0.0758</td><td class="val-bad">45.5%</td><td class="val-bad">High</td><td class="val-bad">Full collapse</td></tr>
-        </tbody>
-      </table>
-      <div class="warning-box"><strong>Critical failure at all temperatures:</strong> Low temperatures: Stage 1 healthy, Stages 2–4 collapsed catastrophically (94.9% dead at T=0.1). Stage 1 absorbed too much signal, leaving near-zero residuals for subsequent stages. High temperatures: everything collapsed. An earlier formulation collapsed entirely with perplexity dropping to 1 and a single code active.</div>
-      <div class="conclusion"><strong>Conclusion:</strong> Soft assignments are fundamentally incompatible with EMA-based multi-stage RVQ. Hard nearest-neighbor assignments retained. All three regularization approaches (Exp 13, 14, 15) failed for the same structural reason — they treat collapse as a distributional problem when the binding constraint is structural.</div>
-    </div>
-  </div>
-
-  <!-- EXP 16 -->
-  <div class="exp-card" id="exp16">
-    <div class="exp-header" onclick="toggle('exp16')">
-      <span class="exp-num">Exp 16</span>
-      <span class="exp-title-text">NS-VQ + Warm-Start + Stage-Specific K Scaling</span>
-      <span class="exp-status status-done">✓ Complete</span>
-      <span class="exp-toggle">▼</span>
-    </div>
-    <div class="exp-body">
-      <div class="info-row">
-        <div class="info-box"><div class="info-box-label">Objective</div><div class="info-box-value">Resolve all three identified failure modes simultaneously through architectural changes: warm-start init, NS-VQ neighbor update, stage-specific K.</div></div>
-        <div class="info-box"><div class="info-box-label">Three Problems Addressed</div><div class="info-box-value">1. Early training instability → k-means++ warm-start<br>2. Data capacity ceiling → stage-specific K<br>3. Stage hierarchy mismatch → K=[256,256,128,64]</div></div>
-      </div>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:12px;font-weight:600;">NS-VQ Update Rule: when code e_i wins, neighbors e_j receive a kernel-weighted update:</p>
-      <div class="info-box" style="margin-bottom:16px;font-family:monospace;font-size:12px;color:var(--accent4)">
-        e_j ← e_j + α · K(e_i, e_j) · (z - e_j)<br>
-        K(e_i, e_j) = exp(-||e_i - e_j||² / τ)
-      </div>
-      <table class="data-table">
-        <thead><tr><th>Configuration</th><th>Mean MSE</th><th>Stage 1 Dead %</th><th>Stage 4 Dead %</th><th>Meets All Criteria?</th></tr></thead>
-        <tbody>
-          <tr><td>Baseline (K=256, no NS-VQ)</td><td>0.0057</td><td>16.4%</td><td>14.8%</td><td class="val-bad">No</td></tr>
-          <tr><td>NS-VQ Runs A–D</td><td>0.0081–0.0092</td><td>8–11%</td><td>13–16%</td><td class="val-bad">No</td></tr>
-          <tr><td>+ Warm-Start</td><td>0.0079</td><td>11.3%</td><td>12.9%</td><td class="val-bad">No</td></tr>
-          <tr><td class="val-good">Full Stack K=[256,256,128,64]</td><td class="val-good">0.0058</td><td class="val-good">16.0%</td><td class="val-good">1.6%</td><td class="val-good">Yes ✓</td></tr>
-        </tbody>
-      </table>
-      <p style="font-size:13px;color:var(--text2);margin:16px 0 8px;font-weight:600;">Full Stack — Per-Stage Breakdown:</p>
-      <table class="data-table">
-        <thead><tr><th>Stage</th><th>K</th><th>Active Codes</th><th>Dead %</th><th>Residual MSE</th></tr></thead>
-        <tbody>
-          <tr><td>Stage 1</td><td>256</td><td class="val-good">215/256</td><td>16.0%</td><td>0.045888</td></tr>
-          <tr><td>Stage 2</td><td>256</td><td>199/256</td><td>22.3%</td><td>0.016961</td></tr>
-          <tr><td>Stage 3</td><td>128</td><td class="val-good">111/128</td><td>13.3%</td><td>0.009255</td></tr>
-          <tr><td>Stage 4</td><td>64</td><td class="val-good">63/64</td><td class="val-good">1.6%</td><td>0.006146</td></tr>
-        </tbody>
-      </table>
-      <div class="insight"><strong>Stage 2 structural ceiling:</strong> Stage 2 remained at ~19–22% dead codes across every τ bandwidth, every initialization, every epoch count, and every dataset size. This is structural, not optimization failure — Stage 2 residuals simply do not contain enough diversity to support K=256. This is the clearest evidence that some dead-code behavior reflects intrinsic signal complexity rather than training pathology.</div>
-      <div class="conclusion"><strong>Conclusion:</strong> First configuration to satisfy all three viability criteria simultaneously. Total codebook entries: 704 (vs 1024 uniform-K=256 baseline) — 31% fewer entries at equivalent or better reconstruction. Stage 4 utilization: 63/64 active (1.6% dead). This closes Phase 1.</div>
-    </div>
-  </div>
-
-  <!-- EXP 6 -->
-  <div class="exp-card" id="exp6">
-    <div class="exp-header" onclick="toggle('exp6')">
-      <span class="exp-num">Exp 6</span>
-      <span class="exp-title-text">Latent Dimension D Sweep</span>
-      <span class="exp-status status-done">✓ Complete</span>
-      <span class="exp-toggle">▼</span>
-    </div>
-    <div class="exp-body">
-      <div class="info-row">
-        <div class="info-box"><div class="info-box-label">Objective</div><div class="info-box-value">Find optimal embedding dimensionality D balancing reconstruction quality with quantization efficiency.</div></div>
-        <div class="info-box"><div class="info-box-label">Variables</div><div class="info-box-value">D ∈ {32, 64, 128}<br>Full NS-VQ stack, K=[256,256,128,64]<br>2k records, 30 epochs</div></div>
-      </div>
-      <table class="data-table">
-        <thead><tr><th>D</th><th>Mean MSE</th><th>Best Val Loss</th><th>Stage 2 Dead %</th><th>Stage 4 Active</th></tr></thead>
-        <tbody>
-          <tr><td>32</td><td>0.0059</td><td>0.005551</td><td>21.5%</td><td>57/64</td></tr>
-          <tr><td class="val-good">64</td><td class="val-good">0.0056</td><td class="val-good">0.005178</td><td>20.7%</td><td class="val-good">62/64</td></tr>
-          <tr><td>128</td><td class="val-bad">0.0070</td><td class="val-bad">0.005931</td><td class="val-bad">27.0%</td><td class="val-good">62/64</td></tr>
-        </tbody>
-      </table>
-      <div class="insight"><strong>Counterintuitive finding:</strong> D=128 did not improve reconstruction despite larger capacity — it made things worse. Higher-dimensional residual manifolds are harder for fixed-size codebooks to partition efficiently. D=32 was surprisingly competitive, suggesting ECG morphology lies on a relatively low-dimensional latent manifold. D=64 strikes the optimal balance.</div>
-      <div class="conclusion"><strong>Decision:</strong> D=64 selected as final embedding dimension. Quantization efficiency — not encoder expressivity — becomes the bottleneck at high latent dimensionalities.</div>
-    </div>
-  </div>
-
-</div>
-
-<!-- RESULTS SUMMARY -->
-<div class="section" id="results">
-  <div class="section-title">Results & Observations — The Full Story</div>
-
-  <div class="section-subtitle">Reconstruction Quality (MSE)</div>
-  <p>Reconstruction is the easiest metric to improve and the most dangerous to optimize in isolation. Every intervention that dramatically lowered MSE — K=1024 at 0.0448, Anchor Resampling at 0.0555 — came with severe utilization penalties. The clearest reconstruction gains came from: reset strategies (35–45% drop vs baseline), data scaling (monotonic improvement 1k→10k), and most significantly, RVQ depth (63% drop from single-stage to RVQ-2). The final configuration (Full Stack, Exp 16) achieves MSE=0.0058 — the best across all experiments — while using 31% fewer codebook entries than the best uniform-K baseline.</p>
-
-  <div class="section-subtitle">Codebook Utilization (Active Codes / Dead %)</div>
-  <p>Utilization tells the story of how honestly the model learned. From the 87.5% dead codes at K=1024 in Exp 1, to 1.6% at Stage 4 in the final Full Stack configuration — the path was not linear. Reset strategies helped but left power-law distributions. Regularization (Exp 13–15) failed to move the needle for structural reasons. The decisive improvement came from matching codebook capacity to the signal's intrinsic granularity: K=128 saturating at ~120 active codes per stage revealed that number as the natural ceiling at this encoder resolution. Stage-specific K=[256,256,128,64] works with that ceiling rather than against it.</p>
-
-  <div class="section-subtitle">Representational Diversity (Perplexity)</div>
-  <p>Perplexity consistently exposed the limits of every intervention before the other metrics did. It remained flat through data scaling (0.65–0.70 normalized across all dataset sizes), declined with RVQ depth (Stage 1 of deeper models faces harder residuals), and failed to meaningfully improve under any regularization approach. The final full-stack aggregate perplexity of 627.6 (sum across stages) far exceeds the single-stage baseline of 355.0 — confirming genuine diversity gain from the multi-stage architecture.</p>
-
-  <div class="section-subtitle">The Three-Problem Reframing</div>
-  <p>The most important finding of Phase 1 is not a metric. Codebook collapse in ECG RVQ tokenization is not one problem. It is three:</p>
-  <div class="insight">
-    <strong>Problem 1 — Training dynamics:</strong> EMA inertia, early code specialization, objective misalignment. Addressed by: K-Means reset, γ=0.95, warm-start initialization.<br><br>
-    <strong>Problem 2 — Data capacity ceiling:</strong> The ECG signal supports ~120 separable patterns per stage at 80ms resolution. This is a property of the signal, not a failure. Addressed by: setting K below the per-stage ceiling.<br><br>
-    <strong>Problem 3 — Stage hierarchy mismatch:</strong> Later RVQ stages quantize lower-complexity residuals. Forcing uniform K across stages creates artificial dead-code pressure. Addressed by: K=[256,256,128,64].
-  </div>
-  <p>Interventions that failed (Exp 13–15) all treated collapse as a distributional problem in the loss landscape. The binding constraint is structural. No auxiliary loss changes how many distinct patterns ECG signals contain at this resolution.</p>
-</div>
-
-<!-- FINAL ARCHITECTURE -->
-<div class="section" id="final">
-  <div class="section-title">Final Architecture — Phase 1 Complete</div>
-  <div class="metrics-row">
-    <div class="metric-pill"><div class="metric-pill-label">Mean MSE</div><div class="metric-pill-val" style="color:var(--accent2)">0.0058</div></div>
-    <div class="metric-pill"><div class="metric-pill-label">Stage 4 Dead Codes</div><div class="metric-pill-val" style="color:var(--accent2)">1.6%</div></div>
-    <div class="metric-pill"><div class="metric-pill-label">Total Codebook Entries</div><div class="metric-pill-val" style="color:var(--accent)">704</div></div>
-    <div class="metric-pill"><div class="metric-pill-label">Utilization</div><div class="metric-pill-val" style="color:var(--accent2)">97.7%</div></div>
-    <div class="metric-pill"><div class="metric-pill-label">Tokens per ECG</div><div class="metric-pill-val" style="color:var(--accent4)">125×4 = 500</div></div>
-  </div>
-  <table class="arch-table" style="margin-top:20px">
-    <thead><tr><th>Component</th><th>Value</th><th>Rationale</th></tr></thead>
-    <tbody>
-      <tr><td>Architecture</td><td class="arch-val">RVQ, 4 stages</td><td>Best MSE-per-stage efficiency; 87% reconstruction improvement vs single-stage</td></tr>
-      <tr><td>Codebook sizes</td><td class="arch-val">K=[256,256,128,64]</td><td>Matched to per-stage residual complexity and data capacity ceiling</td></tr>
-      <tr><td>EMA decay (γ)</td><td class="arch-val">0.95</td><td>Optimal adaptation/stability balance from Exp 3</td></tr>
-      <tr><td>Initialization</td><td class="arch-val">k-means++ + Lloyd refinement</td><td>Aligns codebook geometry to residual distribution before training begins</td></tr>
-      <tr><td>Reset strategy</td><td class="arch-val">K-Means centroid reset</td><td>Only mechanism that directly revives dead codes</td></tr>
-      <tr><td>Assignments</td><td class="arch-val">Hard nearest-neighbor</td><td>Soft assignments incompatible with EMA multi-stage RVQ (Exp 15)</td></tr>
-      <tr><td>Embedding dimension</td><td class="arch-val">D=64</td><td>Best reconstruction; D=128 increases quantization difficulty without improving expressivity</td></tr>
-      <tr><td>Entropy reg.</td><td class="arch-val">Removed</td><td>Soft/hard assignment mismatch — cannot reach dead codes by design</td></tr>
-      <tr><td>Usage penalty</td><td class="arch-val">Removed</td><td>Redistributes active codes only; does not expand into dead regions</td></tr>
-      <tr><td>Soft assignments</td><td class="arch-val">Removed</td><td>Causes catastrophic collapse in Stages 2–4 of RVQ</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- ANTICIPATED QUESTIONS -->
-<div class="section" id="uncomfortable">
-  <div class="section-title">Anticipated Questions for Prof. Kapila</div>
-
-  <div class="qa-block">
-    <div class="qa-q">Why VQ-VAE and not another tokenization method?</div>
-    <div class="qa-a">VQ-VAE is the canonical architecture for discrete representation learning from continuous signals. It produces integer token indices directly analogous to word indices in a text vocabulary, which is precisely what we need for downstream sequence modeling. The precedent from audio (SoundStream, EnCodec) is strong and the structural analogy to ECG is direct — both are continuous time-series with repeating structural units. Starting with VQ-VAE before surveying alternatives was the right call because it is the most studied approach and its failure modes are well-characterized in the literature. We know exactly what we're working with.
-    <br><br>
-    <strong style="color:var(--text)">Alternative methods considered and why they were not chosen first:</strong>
-    <br><br>
-    <strong style="color:var(--accent4)">Patch-based Tokenization</strong> — divides the ECG into fixed-length windows and treats each as a token. Simple and interpretable, but the tokens are not learned — they are arbitrary fixed segments with no guarantee that boundaries align with physiologically meaningful units like PQRST complexes. ECG morphology does not divide evenly into uniform patches. Most patches at 80ms resolution would look nearly identical (flat baseline), and the vocabulary is fixed rather than emergent from data. Used in vision transformers (ViT) where patch content varies richly — less appropriate for a 1D signal with a dominant repeating structure.
-    <br><br>
-    <strong style="color:var(--accent4)">QRS-Segmented Tokenization</strong> — segments ECG by detected QRS complexes, mapping each beat to an embedding. Physiologically principled and used in HeartLang. The core problem: it requires a reliable QRS detector as a preprocessing step, making the tokenization pipeline dependent on a separate algorithm. Any QRS detection errors propagate into the token sequence. It also forces variable-length tokens (beats vary in duration), which complicates downstream sequence modeling. VQ-VAE avoids this by learning fixed-length tokens from data without any preprocessing.
-    <br><br>
-    <strong style="color:var(--accent4)">Finite Scalar Quantization (FSQ)</strong> — replaces the learned codebook with fixed scalar quantization grids, entirely sidestepping codebook collapse. Elegant and used in recent vision work. The reason not to start here: FSQ sacrifices adaptive vocabulary alignment — the codebook entries are not learned from the data, so they cannot align with the signal's natural cluster structure. For ECG, where the goal is to discover what the meaningful morphological primitives actually are, a fixed grid is the wrong prior. VQ-VAE's learned codebook is the scientific question, not just an implementation detail.
-    <br><br>
-    <strong style="color:var(--accent4)">ST-MEM / Masked Signal Reconstruction</strong> — self-supervised approach that masks segments and trains the model to reconstruct them (analogous to BERT for ECG). Produces continuous embeddings, not discrete tokens. Does not generate a reusable vocabulary of integer indices. Cannot be fed directly into an autoregressive prior or language model without a separate discretization step. Good for pre-training representations but not the right architecture for the tokenization goal.
-    <br><br>
-    <strong style="color:var(--accent4)">BEAT / Diffusion-based Tokenization</strong> — dual-level VQ with a bidirectional diffusion mechanism (HeartcareGPT, 2025). More complex architecture requiring substantially more compute and data. Starting with BEAT on a laptop with 1k records would have been the wrong order of operations — the complexity would have obscured which components were actually responsible for any failures. VQ-VAE's simplicity made the failure modes diagnosable.
-    <br><br>
-    The common thread: VQ-VAE was chosen because it is the right level of complexity for this stage of the project — learnable, interpretable, well-precedented, and diagnosable when it fails. The alternatives are either too rigid (patch, FSQ), too dependent on preprocessing (QRS-segmented), do not produce discrete tokens (ST-MEM), or too complex to debug at this scale (BEAT). The plan is to compare approaches once the VQ-VAE baseline is validated — not because VQ-VAE failed, but because comparing produces deeper understanding.</div>
-  </div>
-
-  <div class="qa-block">
-    <div class="qa-q">Why ECG and not EEG, given that EEG is the long-term goal?</div>
-    <div class="qa-a">ECG has a well-defined repeating unit — the PQRST complex — with known clinical meaning at each component. A single cardiac cycle is ~0.6–1.0 seconds, and its morphology is consistent enough across patients that clinicians use the same vocabulary globally. This makes ECG an ideal proving ground: if a learned codebook can capture clinically meaningful structure in a signal with known ground truth morphology, the methodology can transfer to EEG where the signal is higher-dimensional (64+ channels), noisier, lacks a repeating structural unit analogous to PQRST, and lacks PTB-XL's rich public labeling infrastructure. Starting with ECG is deliberate scaffolding — validate the tokenization framework on a tractable signal first, then extend to EEG. The framework itself is signal-agnostic.</div>
-  </div>
-
-  <div class="qa-block">
-    <div class="qa-q">Codebook collapse is still present after 16 experiments — did you actually solve it?</div>
-    <div class="qa-a">Partially, and the partial resolution is the scientific result. The final configuration achieves 97.7% codebook utilization (1.6% dead codes at Stage 4), which satisfies all three viability criteria simultaneously for the first time. But Stage 2 remains at ~22% dead — and this is structural, not a training failure. Stage 2 residuals simply do not contain enough intrinsic diversity to support K=256. This is not a bug; it is a finding about the signal's latent structure at this encoder resolution. The correct interpretation is that some dead-code behavior in later stages reflects genuine over-capacity — there are not 256 meaningfully different residual patterns to quantize at Stage 2. The paper's contribution is identifying this and showing why regularization cannot fix it.</div>
-  </div>
-
-  <div class="qa-block">
-    <div class="qa-q">Why did you choose K=512 as the initial codebook size?</div>
-    <div class="qa-a">At 100Hz, a 10-second ECG segment produces 1,000 samples. With 8× downsampling, each token represents ~80ms of signal — approximately one-tenth of a typical cardiac cycle. A single PQRST complex spans roughly 3–4 such tokens. K=512 was chosen as a reasonable upper bound on the number of morphologically distinct patterns one might expect at 80ms resolution, given the diversity of ECG morphologies across the PTB-XL dataset. It also follows the convention in audio codec literature (SoundStream uses K=1024). It turned out to be too large — the signal's intrinsic granularity is ~120 distinct patterns per stage — but that was not knowable before running the experiments.</div>
-  </div>
-
-  <div class="qa-block">
-    <div class="qa-q">Do these tokens actually mean anything clinically? How do you know they capture meaningful structure?</div>
-    <div class="qa-a">This is the open question that Phase 2 will answer. Phase 1 establishes that the tokenizer is healthy — active, diverse, and stable. Whether the tokens are semantically meaningful requires a downstream evaluation. The plan is a linear probe on PTB-XL diagnostic labels over frozen token sequences. If the probe performs competitively with a 1D ResNet trained directly on raw waveforms, the tokens carry clinically meaningful structure. If it does not, the codebook is compact but semantically empty. We do not yet know which it is. This is the honest answer, and it is the right next question.</div>
-  </div>
-
-  <div class="qa-block">
-    <div class="qa-q">What is the path to a downstream model?</div>
-    <div class="qa-a">Phase 2: Train a masked token prediction model on frozen token sequences from the Phase 1 tokenizer. Evaluate with a linear probe on PTB-XL superclass labels (Normal vs AFib vs ST-change etc.) — this determines whether the discrete representations carry clinically meaningful structure. Phase 3: If semantic validity is confirmed, train an autoregressive model over token sequences. The architecture decision (train from scratch vs fine-tune an existing LLM) is open and depends on Phase 2 results and available compute. The pacemaker application — generating physiologically realistic heartbeat signals — is a Phase 3 downstream use case, not an immediate deliverable.</div>
-  </div>
-
-  <div class="qa-block">
-    <div class="qa-q">All experiments used 1k records — is that enough to draw conclusions?</div>
-    <div class="qa-a">Exp 4 directly addresses this. Scaling from 1k to 10k records improved reconstruction consistently but left codebook utilization completely unchanged — dead codes held at 21–29% regardless of dataset size. This is a decisive negative result: the capacity ceiling is not a data scarcity artifact. It persists across a 10× increase in training records. For the architectural conclusions in Exp 16 and 6, 2k records were used with 30 epochs. The findings are consistent across all dataset sizes tested.</div>
-  </div>
-</div>
-
-<!-- NEXT PHASE -->
-<div class="section" id="next">
-  <div class="section-title">Phase 2 Roadmap</div>
-  <p>Phase 1 is complete. Each 10-second ECG segment is now represented as 125×4 = 500 tokens from a 704-entry vocabulary with 97.7% utilization. The remaining open question is semantic validity.</p>
-  <div class="roadmap">
-    <div class="phase-block">
-      <div class="phase-num">Phase 2</div>
-      <div class="phase-name">Semantic Validity</div>
-      <div class="phase-exps">Linear probe on frozen tokens vs PTB-XL labels</div>
-    </div>
-    <div class="phase-block">
-      <div class="phase-num">Phase 3</div>
-      <div class="phase-name">Sequence Modeling</div>
-      <div class="phase-exps">Autoregressive model over token sequences</div>
-    </div>
-    <div class="phase-block">
-      <div class="phase-num">Phase 4</div>
-      <div class="phase-name">Generation</div>
-      <div class="phase-exps">Physiologically realistic ECG synthesis</div>
-    </div>
-  </div>
-  <div class="conclusion" style="margin-top:20px">
-    <strong>The scientific claim Phase 1 supports:</strong> Codebook collapse in multi-stage RVQ has three distinct causes, and standard regularization approaches address only the first. The architectural solution — stage-specific codebook sizing, warm-start initialization, and NS-VQ neighbor updates — resolves all three simultaneously, achieving 97.7% codebook utilization with MSE=0.0058 on PTB-XL, the only configuration across sixteen experiments to satisfy all viability criteria at once.
-  </div>
-</div>
-
-</main>
+<!-- FOOTER -->
+<footer>
+  <div class="footer-name">Vaishnavi Gupta</div>
+  <div style="font-size:0.85rem; margin-top:0.2rem;">NYU Tandon School of Engineering · PhD Applicant Fall 2027</div>
+  <ul class="footer-links">
+    <li><a href="mailto:vgg2023@nyu.edu">vgg2023@nyu.edu</a></li>
+    <li><a href="https://github.com/vaishnavi070899/ecg-tokenization" target="_blank" rel="noopener">GitHub Repository</a></li>
+  </ul>
+  <small>ECG as Language — Discrete Representation Learning for Physiological Signals</small>
+</footer>
 
 <script>
-function toggle(id) {
-  const card = document.getElementById(id);
-  const body = card.querySelector('.exp-body');
-  const arrow = card.querySelector('.exp-toggle');
-  if (body.classList.contains('open')) {
-    body.classList.remove('open');
-    arrow.textContent = '▼';
-  } else {
-    body.classList.add('open');
-    arrow.textContent = '▲';
-  }
-}
+// Animated ECG waveform
+(function() {
+  const canvas = document.getElementById('ecgCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
 
-function scrollTo(id) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  event.target.classList.add('active');
-}
-
-// Highlight active nav on scroll
-const sections = ['hero','why','architecture','metrics','methodology','exp1','exp2','exp12','exp3','exp4','exp5','exp13','exp14','exp15','exp16','exp6','results','final','uncomfortable','next'];
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      const match = document.querySelector(`.nav-item[onclick="scrollTo('${entry.target.id}')"]`);
-      if (match) match.classList.add('active');
+  // ECG-like waveform data (one beat cycle, normalized 0–1)
+  function ecgBeat(t) {
+    t = t % 1;
+    // P wave
+    if (t < 0.09) return 0.5 + 0.06 * Math.sin(Math.PI * t / 0.09);
+    // PR segment
+    if (t < 0.16) return 0.5;
+    // Q wave
+    if (t < 0.19) return 0.5 - 0.08 * ((t - 0.16) / 0.03);
+    // R wave (spike)
+    if (t < 0.225) return 0.5 - 0.08 + (0.72 * ((t - 0.19) / 0.035));
+    // S wave
+    if (t < 0.27) return 0.5 + 0.64 - (0.74 * ((t - 0.225) / 0.045));
+    // ST segment
+    if (t < 0.38) return 0.5 - 0.04;
+    // T wave
+    if (t < 0.55) {
+      const tt = (t - 0.38) / 0.17;
+      return 0.5 - 0.04 + 0.22 * Math.sin(Math.PI * tt);
     }
+    // Baseline
+    return 0.5;
+  }
+
+  const pts = 600;
+  const data = Array.from({length: pts}, (_, i) => ecgBeat(i / pts * 2.8));
+
+  let offset = 0;
+  let animId;
+  const isDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
+    || document.documentElement.getAttribute('data-theme') === 'dark';
+
+  function draw() {
+    const dark = isDark();
+    const gridColor = dark ? 'rgba(100,130,180,0.12)' : 'rgba(37,99,235,0.08)';
+    const lineColor = dark ? '#38BDF8' : '#2563EB';
+    const bgColor = dark ? '#1E293B' : '#F5F7FA';
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, W, H);
+
+    // Grid
+    ctx.strokeStyle = gridColor;
+    ctx.lineWidth = 1;
+    const gx = W / 10, gy = H / 7;
+    for (let x = 0; x <= W; x += gx) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+    for (let y = 0; y <= H; y += gy) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+    // Waveform
+    ctx.beginPath();
+    ctx.strokeStyle = lineColor;
+    ctx.lineWidth = 2.2;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+
+    for (let i = 0; i < W; i++) {
+      const di = (i + offset) % pts;
+      const y = (1 - data[di]) * (H - 40) + 20;
+      if (i === 0) ctx.moveTo(i, y);
+      else ctx.lineTo(i, y);
+    }
+    ctx.stroke();
+
+    offset = (offset + 1.2) % pts;
+    animId = requestAnimationFrame(draw);
+  }
+
+  // Pause when offscreen
+  const obs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { if (!animId) draw(); }
+    else { cancelAnimationFrame(animId); animId = null; }
   });
-}, { threshold: 0.2 });
-sections.forEach(id => {
-  const el = document.getElementById(id);
-  if (el) observer.observe(el);
-});
+  obs.observe(canvas);
+
+  // Reduce motion
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    draw();
+    cancelAnimationFrame(animId);
+    animId = null;
+  } else {
+    draw();
+  }
+})();
 </script>
-</body>
 </html>
